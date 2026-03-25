@@ -225,7 +225,7 @@ HTML = """<!DOCTYPE html>
           transcript.textContent = text;
           finalText = text;
           sendBtn.disabled = false;
-          doSend();
+          doSend(true);
         });
         const delBtn = document.createElement('button');
         delBtn.className = 'resend-btn';
@@ -318,7 +318,7 @@ HTML = """<!DOCTYPE html>
       }
     });
 
-    async function doSend() {
+    async function doSend(isResend = false) {
       const text = transcript.textContent.trim();
       if (!text) return;
       sendBtn.disabled = true;
@@ -332,7 +332,7 @@ HTML = """<!DOCTYPE html>
         if (data.status === 'ok') {
           resultEl.textContent = '✅ クリップボードにコピーしました！VS CodeでCtrl+Vで貼り付けてください。';
           resultEl.classList.remove('error');
-          addHistory(text);
+          if (!isResend) addHistory(text);
         } else {
           throw new Error(data.message || '不明なエラー');
         }
