@@ -373,12 +373,13 @@ HTML = """<!DOCTYPE html>
       if (history.length > HISTORY_MAX) history.pop();
       saveHistory(history);
       renderHistory();
+      historyList.scrollTop = historyList.scrollHeight;
     }
 
     function renderHistory() {
       const history = loadHistory();
       historyList.innerHTML = '';
-      history.forEach(entry => {
+      history.slice().reverse().forEach(entry => {
         const text = typeof entry === 'string' ? entry : entry.text;
         const seq  = typeof entry === 'string' ? '' : String(entry.seq).padStart(3, '0');
         const item = document.createElement('div');
