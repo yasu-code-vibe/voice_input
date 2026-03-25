@@ -11,11 +11,13 @@ pip install -r requirements.txt
 
 ## 起動
 
+VS Code起動時に **SessionStartフック** で自動起動します。手動で起動する場合:
+
 ```bash
-python server.py
+nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_input/server.log 2>&1 &
 ```
 
-起動するとPCのローカルIPアドレスが表示されます。
+起動するとPCのローカルIPアドレスが `server.log` に記録されます。
 
 ```
 ==================================================
@@ -34,24 +36,18 @@ HTTP接続でのマイク使用を許可するための設定（1回だけ必要
 
 ## 使い方
 
-1. PCで `python server.py` を起動
-2. AndroidのChromeで表示されたURLにアクセス
+1. VS Codeを起動（サーバーが自動起動）
+2. AndroidのChromeで `http://192.168.x.x:5000` にアクセス
 3. 🎤 ボタンをタップして話す
 4. テキストが表示されたら「📋 送信」ボタンをタップ
 5. VS CodeのClaudeCodeチャット欄をクリックして `Ctrl+V` で貼り付け
 
 ## 停止
 
-サーバーを起動したターミナルで:
-
-```
-Ctrl + C
-```
-
-バックグラウンドで起動している場合（Windowsのみ）:
+手動で停止する場合（PIDファイルを使用してserver.pyのみ停止）:
 
 ```bash
-taskkill //F //IM python.exe
+pid=$(cat d:/workspace_git/voice_input/server.pid); taskkill //PID $pid //F
 ```
 
 ## 注意事項
