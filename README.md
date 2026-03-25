@@ -105,13 +105,16 @@ openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 3650 -nod
 
 **Step 1: 証明書をダウンロードする**
 
-iPhoneの **Safari** で以下にアクセスしてダウンロード:
+1. iPhoneとPCが同じWi-Fiに接続されていることを確認
+2. iPhoneの **Safari** を開く（ChromeはNG）
+3. アドレスバーに以下を入力してアクセス:
 
 ```
 http://192.168.x.x:5000/cert
 ```
 
-> ⚠️ Safariでないとダウンロードできないことがあります（ChromeはNG）
+4. 「"192.168.x.x"からダウンロードしますか？」→「許可」をタップ
+5. 画面上部またはダウンロードアイコンから「設定で開く」をタップ
 
 **Step 2: プロファイルをインストールする**
 
