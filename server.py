@@ -111,6 +111,45 @@ HTML = """<!DOCTYPE html>
       color: #a6e3a1;
     }
     #result.error { color: #f38ba8; }
+    #history-section {
+      width: 100%;
+      max-width: 480px;
+    }
+    #history-section h2 {
+      font-size: 0.9rem;
+      color: #89b4fa;
+      margin-bottom: 8px;
+    }
+    #history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #313244;
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+    .history-text {
+      flex: 1;
+      font-size: 0.9rem;
+      word-break: break-all;
+      color: #cdd6f4;
+    }
+    .resend-btn {
+      flex-shrink: 0;
+      background: #45475a;
+      color: #cdd6f4;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .resend-btn:active { opacity: 0.7; }
   </style>
 </head>
 <body>
@@ -128,6 +167,11 @@ HTML = """<!DOCTYPE html>
 
   <div id="result"></div>
 
+  <div id="history-section">
+    <h2>📜 履歴</h2>
+    <div id="history-list"></div>
+  </div>
+
   <script>
     const micBtn = document.getElementById('mic-btn');
     const transcript = document.getElementById('transcript');
@@ -135,6 +179,53 @@ HTML = """<!DOCTYPE html>
     const clearBtn = document.getElementById('clear-btn');
     const statusEl = document.getElementById('status');
     const resultEl = document.getElementById('result');
+    const historyList = document.getElementById('history-list');
+
+    const HISTORY_KEY = 'voice_input_history';
+    const HISTORY_MAX = 20;
+
+    function loadHistory() {
+      try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
+      catch { return []; }
+    }
+
+    function saveHistory(history) {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }
+
+    function addHistory(text) {
+      const history = loadHistory().filter(t => t !== text);
+      history.unshift(text);
+      if (history.length > HISTORY_MAX) history.pop();
+      saveHistory(history);
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const history = loadHistory();
+      historyList.innerHTML = '';
+      history.forEach(text => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        const span = document.createElement('span');
+        span.className = 'history-text';
+        span.textContent = text;
+        const btn = document.createElement('button');
+        btn.className = 'resend-btn';
+        btn.textContent = '再送';
+        btn.addEventListener('click', () => {
+          transcript.textContent = text;
+          finalText = text;
+          sendBtn.disabled = false;
+          doSend();
+        });
+        item.appendChild(span);
+        item.appendChild(btn);
+        historyList.appendChild(item);
+      });
+    }
+
+    renderHistory();
 
     let recognition = null;
     let isListening = false;
@@ -224,6 +315,7 @@ HTML = """<!DOCTYPE html>
         if (data.status === 'ok') {
           resultEl.textContent = '✅ クリップボードにコピーしました！VS CodeでCtrl+Vで貼り付けてください。';
           resultEl.classList.remove('error');
+          addHistory(text);
         } else {
           throw new Error(data.message || '不明なエラー');
         }
