@@ -32,7 +32,7 @@ HTML = """<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>音声入力</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,92 +43,22 @@ HTML = """<!DOCTYPE html>
       display: flex;
       flex-direction: column;
       align-items: center;
-      height: 100vh;
-      padding: 24px 16px 16px;
-      gap: 16px;
+      height: 100dvh;
+      padding: 12px 16px 16px;
+    }
+    body.ios    { padding-bottom: 0px; }
+    body.android { padding-bottom: 36px;
+      gap: 8px;
       overflow: hidden;
     }
-    h1 { font-size: 1.2rem; color: #89b4fa; margin: -8px 0; }
-    #status {
-      font-size: 0.85rem;
-      color: #a6e3a1;
-      min-height: 1.2em;
-    }
-    #status.error { color: #f38ba8; }
-    #main-group {
-      display: flex;
-      align-items: stretch;
-      gap: 10px;
-      width: 100%;
-      max-width: 560px;
-    }
-    #mic-btn {
-      flex-shrink: 0;
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      border: none;
-      background: #313244;
-      font-size: 2rem;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      align-self: center;
-    }
-    #mic-btn.listening {
-      background: #f38ba8;
-      animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-      0%   { transform: scale(1); }
-      50%  { transform: scale(1.08); }
-      100% { transform: scale(1); }
-    }
-    #transcript {
-      flex: 1;
-      min-height: 90px;
-      background: #313244;
-      border: 1px solid #45475a;
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 1rem;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-break: break-all;
-    }
-    .btn-col {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-    .btn {
-      padding: 10px 14px;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      font-weight: bold;
-      transition: opacity 0.2s;
-      white-space: nowrap;
-    }
-    .btn:disabled { opacity: 0.4; cursor: default; }
-    #send-btn { background: #89b4fa; color: #1e1e2e; }
-    #clear-btn { background: #45475a; color: #cdd6f4; }
-    #pc-clip-btn { background: #a6e3a1; color: #1e1e2e; }
-    #result {
-      font-size: 0.85rem;
-      color: #a6e3a1;
-    }
-    #result.error { color: #f38ba8; }
+    h1 { font-size: 1.2rem; color: #89b4fa; flex-shrink: 0; }
     #history-section {
       width: 100%;
-      max-width: 480px;
+      max-width: 560px;
       flex: 1;
       display: flex;
       flex-direction: column;
       min-height: 0;
-      margin-top: -8px;
     }
     #history-section h2 {
       font-size: 0.9rem;
@@ -169,38 +99,255 @@ HTML = """<!DOCTYPE html>
       cursor: pointer;
     }
     .resend-btn:active { opacity: 0.7; }
+    #bottom-area {
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    #status { font-size: 0.85rem; color: #a6e3a1; }
+    #status.error { color: #f38ba8; }
+    #result { font-size: 0.85rem; color: #a6e3a1; }
+    #result.error { color: #f38ba8; }
+    #main-group {
+      display: flex;
+      align-items: stretch;
+      gap: 10px;
+      width: 100%;
+    }
+    #mic-btn {
+      flex-shrink: 0;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: none;
+      background: #313244;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      align-self: center;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    #mic-btn.listening {
+      background: #f38ba8;
+      animation: pulse 1s infinite;
+    }
+    #mic-btn.floating {
+      position: fixed;
+      z-index: 1000;
+      touch-action: none;
+    }
+    #mic-placeholder {
+      display: none;
+      flex-shrink: 0;
+      width: 72px;
+      height: 72px;
+      align-self: center;
+    }
+    #mic-placeholder.visible { display: block; }
+    @keyframes pulse {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+    #transcript {
+      flex: 1;
+      min-height: 72px;
+      background: #313244;
+      border: 1px solid #45475a;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 1rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .btn-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .btn {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+    .btn:disabled { opacity: 0.4; cursor: default; }
+    #send-btn { background: #89b4fa; color: #1e1e2e; }
+    #clear-btn { background: #45475a; color: #cdd6f4; }
+    #pc-clip-btn { background: #a6e3a1; color: #1e1e2e; }
+    #bottom-bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    #mic-mode-btn {
+      flex: 1;
+      background: #313244;
+      color: #a6adc8;
+      border: 1px solid #45475a;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <h1>🎤 音声入力 → VS Code</h1>
-  <div id="status">マイクボタンを押して話してください</div>
-
-  <div id="main-group">
-    <button id="mic-btn" title="音声認識 開始/停止">🎤</button>
-    <div id="transcript" placeholder="ここにテキストが表示されます"></div>
-    <div class="btn-col">
-      <button class="btn" id="send-btn" disabled>📋 送信</button>
-      <button class="btn" id="clear-btn">🗑 クリア</button>
-    </div>
-  </div>
-
-  <button class="btn" id="pc-clip-btn" style="width:100%;max-width:560px;">📥 PCクリップボードを取得</button>
-
-  <div id="result"></div>
 
   <div id="history-section">
     <h2>📜 履歴</h2>
     <div id="history-list"></div>
   </div>
 
+  <div id="bottom-area">
+    <div id="status">マイクボタンを押して話してください</div>
+    <div id="result"></div>
+    <div id="main-group">
+      <button id="mic-btn" title="音声認識 開始/停止">🎤</button>
+      <div id="mic-placeholder"></div>
+      <div id="transcript" placeholder="ここにテキストが表示されます"></div>
+      <div class="btn-col">
+        <button class="btn" id="send-btn" disabled>📋 送信</button>
+        <button class="btn" id="clear-btn">🗑 クリア</button>
+      </div>
+    </div>
+    <button class="btn" id="pc-clip-btn">📥 PCクリップボードを取得</button>
+    <div id="bottom-bar">
+      <button id="mic-mode-btn">🔄 フローティングモードに切替</button>
+    </div>
+  </div>
+
   <script>
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) document.body.classList.add('ios');
+    else if (/Android/i.test(navigator.userAgent)) document.body.classList.add('android');
+
     const micBtn = document.getElementById('mic-btn');
+    const micPlaceholder = document.getElementById('mic-placeholder');
+    const mainGroup = document.getElementById('main-group');
     const transcript = document.getElementById('transcript');
     const sendBtn = document.getElementById('send-btn');
     const clearBtn = document.getElementById('clear-btn');
     const statusEl = document.getElementById('status');
     const resultEl = document.getElementById('result');
     const historyList = document.getElementById('history-list');
+    const micModeBtn = document.getElementById('mic-mode-btn');
+
+    // --- マイクボタン移動モード ---
+    const MIC_MODE_KEY = 'mic_mode';         // 'snap' | 'float'
+    const MIC_SNAP_KEY = 'mic_snap_side';    // 'left' | 'right'
+    const MIC_POS_KEY  = 'mic_float_pos';    // {x, y}
+
+    let micMode = localStorage.getItem(MIC_MODE_KEY) || 'snap';
+
+    function applySnapSide(side) {
+      localStorage.setItem(MIC_SNAP_KEY, side);
+      mainGroup.style.flexDirection = side === 'right' ? 'row-reverse' : 'row';
+    }
+
+    function applyFloatPos(x, y) {
+      const r = 36;
+      x = Math.max(r, Math.min(window.innerWidth  - r, x));
+      y = Math.max(r, Math.min(window.innerHeight - r, y));
+      micBtn.style.left      = x + 'px';
+      micBtn.style.top       = y + 'px';
+      micBtn.style.marginLeft = '-36px';
+      micBtn.style.marginTop  = '-36px';
+      localStorage.setItem(MIC_POS_KEY, JSON.stringify({x, y}));
+    }
+
+    function enterSnapMode() {
+      micMode = 'snap';
+      localStorage.setItem(MIC_MODE_KEY, 'snap');
+      micBtn.classList.remove('floating');
+      micBtn.style.cssText = '';
+      micPlaceholder.classList.remove('visible');
+      mainGroup.insertBefore(micBtn, mainGroup.firstChild);
+      const side = localStorage.getItem(MIC_SNAP_KEY) || 'left';
+      applySnapSide(side);
+      micModeBtn.textContent = '🔄 フローティングモードに切替';
+    }
+
+    function enterFloatMode() {
+      micMode = 'float';
+      localStorage.setItem(MIC_MODE_KEY, 'float');
+      micBtn.classList.add('floating');
+      micPlaceholder.classList.add('visible');
+      document.body.appendChild(micBtn);
+      const saved = JSON.parse(localStorage.getItem(MIC_POS_KEY) || 'null');
+      if (saved) {
+        applyFloatPos(saved.x, saved.y);
+      } else {
+        applyFloatPos(36, window.innerHeight - 120);
+      }
+      micModeBtn.textContent = '🔄 スナップモードに切替';
+    }
+
+    micModeBtn.addEventListener('click', () => {
+      if (micMode === 'snap') enterFloatMode();
+      else enterSnapMode();
+    });
+
+    // スナップモード：ドラッグで左右切替
+    let snapDragStartX = null;
+    micBtn.addEventListener('touchstart', e => {
+      if (micMode !== 'snap') return;
+      snapDragStartX = e.touches[0].clientX;
+    }, {passive: true});
+    micBtn.addEventListener('touchend', e => {
+      if (micMode !== 'snap' || snapDragStartX === null) return;
+      const dx = e.changedTouches[0].clientX - snapDragStartX;
+      if (Math.abs(dx) > 20) {
+        applySnapSide(dx > 0 ? 'right' : 'left');
+      }
+      snapDragStartX = null;
+    }, {passive: true});
+
+    // フローティングモード：ドラッグで自由移動
+    let floatDragging = false;
+    let floatDragMoved = false;
+    let floatDragStartX = 0, floatDragStartY = 0;
+    micBtn.addEventListener('touchstart', e => {
+      if (micMode !== 'float') return;
+      floatDragging = true;
+      floatDragMoved = false;
+      floatDragStartX = e.touches[0].clientX;
+      floatDragStartY = e.touches[0].clientY;
+    }, {passive: true});
+    micBtn.addEventListener('touchmove', e => {
+      if (!floatDragging || micMode !== 'float') return;
+      const dx = e.touches[0].clientX - floatDragStartX;
+      const dy = e.touches[0].clientY - floatDragStartY;
+      if (Math.sqrt(dx * dx + dy * dy) > 10) {
+        e.preventDefault();
+        floatDragMoved = true;
+        applyFloatPos(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, {passive: false});
+    micBtn.addEventListener('touchend', e => {
+      floatDragging = false;
+    }, {passive: true});
+
+    // 初期化
+    if (micMode === 'float') {
+      enterFloatMode();
+    } else {
+      const side = localStorage.getItem(MIC_SNAP_KEY) || 'left';
+      applySnapSide(side);
+    }
     const HISTORY_KEY = 'voice_input_history';
     const HISTORY_SEQ_KEY = 'voice_input_seq';
     const HISTORY_MAX = 1000;
@@ -328,7 +475,14 @@ HTML = """<!DOCTYPE html>
     }
 
     micBtn.addEventListener('click', () => {
+      if (micMode === 'float' && floatDragMoved) { floatDragMoved = false; return; }
       if (isListening) {
+        const current = (finalText + interimText).trim();
+        if (current) {
+          finalText = current;
+          interimText = '';
+          transcript.textContent = finalText;
+        }
         recognition.stop();
       } else {
         finalText = '';
@@ -371,10 +525,12 @@ HTML = """<!DOCTYPE html>
         const res = await fetch('/clipboard');
         const data = await res.json();
         if (data.status === 'ok') {
-          finalText = data.text;
-          transcript.textContent = finalText;
-          sendBtn.disabled = false;
-          addHistory(finalText);
+          addHistory(data.text);
+          if (data.text.length <= 50) {
+            finalText = data.text;
+            transcript.textContent = finalText;
+            sendBtn.disabled = false;
+          }
         } else {
           throw new Error(data.message || '不明なエラー');
         }
@@ -415,6 +571,15 @@ def send():
     pyperclip.copy(text + ' ')
     print(f"[受信] {text}")
     return jsonify({'status': 'ok'})
+
+
+@app.route('/cert', methods=['GET'])
+def cert():
+    from flask import send_file, abort
+    cert_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cert.pem')
+    if not os.path.exists(cert_file):
+        abort(404)
+    return send_file(cert_file, as_attachment=True, download_name='cert.pem', mimetype='application/x-pem-file')
 
 
 @app.route('/clipboard', methods=['GET'])
