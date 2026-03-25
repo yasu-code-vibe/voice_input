@@ -142,7 +142,6 @@ HTML = """<!DOCTYPE html>
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      padding-bottom: 16px;
     }
     .history-item {
       display: flex;
