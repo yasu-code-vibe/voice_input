@@ -210,17 +210,26 @@ HTML = """<!DOCTYPE html>
         const span = document.createElement('span');
         span.className = 'history-text';
         span.textContent = text;
-        const btn = document.createElement('button');
-        btn.className = 'resend-btn';
-        btn.textContent = '再送';
-        btn.addEventListener('click', () => {
+        const resendBtn = document.createElement('button');
+        resendBtn.className = 'resend-btn';
+        resendBtn.textContent = '再送';
+        resendBtn.addEventListener('click', () => {
           transcript.textContent = text;
           finalText = text;
           sendBtn.disabled = false;
           doSend();
         });
+        const delBtn = document.createElement('button');
+        delBtn.className = 'resend-btn';
+        delBtn.textContent = '🗑';
+        delBtn.addEventListener('click', () => {
+          const history = loadHistory().filter(t => t !== text);
+          saveHistory(history);
+          renderHistory();
+        });
         item.appendChild(span);
-        item.appendChild(btn);
+        item.appendChild(resendBtn);
+        item.appendChild(delBtn);
         historyList.appendChild(item);
       });
     }
