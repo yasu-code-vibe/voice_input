@@ -132,6 +132,8 @@ HTML = """<!DOCTYPE html>
       display: flex;
       flex-direction: column;
       gap: 6px;
+      max-height: 300px;
+      overflow-y: auto;
     }
     .history-item {
       display: flex;
@@ -190,6 +192,7 @@ HTML = """<!DOCTYPE html>
     const historyList = document.getElementById('history-list');
 
     const HISTORY_KEY = 'voice_input_history';
+    const HISTORY_SEQ_KEY = 'voice_input_seq';
     const HISTORY_MAX = 20;
 
     function loadHistory() {
@@ -201,9 +204,15 @@ HTML = """<!DOCTYPE html>
       localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     }
 
+    function nextSeq() {
+      const seq = (parseInt(localStorage.getItem(HISTORY_SEQ_KEY) || '-1') + 1) % 1000;
+      localStorage.setItem(HISTORY_SEQ_KEY, String(seq));
+      return seq;
+    }
+
     function addHistory(text) {
-      const history = loadHistory().filter(t => t !== text);
-      history.unshift(text);
+      const history = loadHistory().filter(t => t.text !== text);
+      history.unshift({ seq: nextSeq(), text });
       if (history.length > HISTORY_MAX) history.pop();
       saveHistory(history);
       renderHistory();
@@ -212,12 +221,14 @@ HTML = """<!DOCTYPE html>
     function renderHistory() {
       const history = loadHistory();
       historyList.innerHTML = '';
-      history.forEach(text => {
+      history.forEach(entry => {
+        const text = typeof entry === 'string' ? entry : entry.text;
+        const seq  = typeof entry === 'string' ? '' : String(entry.seq).padStart(3, '0');
         const item = document.createElement('div');
         item.className = 'history-item';
         const span = document.createElement('span');
         span.className = 'history-text';
-        span.textContent = text;
+        span.textContent = (seq ? `[${seq}] ` : '') + text;
         const resendBtn = document.createElement('button');
         resendBtn.className = 'resend-btn';
         resendBtn.textContent = '再送';
@@ -231,7 +242,7 @@ HTML = """<!DOCTYPE html>
         delBtn.className = 'resend-btn';
         delBtn.textContent = '🗑';
         delBtn.addEventListener('click', () => {
-          const history = loadHistory().filter(t => t !== text);
+          const history = loadHistory().filter(e => (typeof e === 'string' ? e : e.text) !== text);
           saveHistory(history);
           renderHistory();
         });
@@ -373,7 +384,7 @@ def send():
     text = data['text'].strip()
     if not text:
         return jsonify({'status': 'error', 'message': '空のテキストです'}), 400
-    pyperclip.copy(text)
+    pyperclip.copy(text + ' ')
     print(f"[受信] {text}")
     return jsonify({'status': 'ok'})
 
