@@ -7,6 +7,7 @@
 import os
 import atexit
 import socket
+import threading
 import pyperclip
 from flask import Flask, request, jsonify, render_template_string
 
@@ -366,7 +367,6 @@ HTML = """<!DOCTYPE html>
     sendBtn.addEventListener('click', doSend);
 
     document.getElementById('pc-clip-btn').addEventListener('click', async () => {
-      const pcClipResult = document.getElementById('pc-clip-result');
       try {
         const res = await fetch('/clipboard');
         const data = await res.json();
@@ -439,25 +439,35 @@ def get_local_ip():
 
 if __name__ == '__main__':
     ip = get_local_ip()
-    port = 5000
+    http_port = 5000
+    https_port = 5001
     script_dir = os.path.dirname(os.path.abspath(__file__))
     cert_file = os.path.join(script_dir, 'cert.pem')
     key_file = os.path.join(script_dir, 'key.pem')
     use_https = os.path.exists(cert_file) and os.path.exists(key_file)
-    scheme = 'https' if use_https else 'http'
+
     print("=" * 50)
     print("  音声入力サーバー起動")
-    print(f"  スマホのChromeでアクセス: {scheme}://{ip}:{port}")
+    print(f"  Android用 (HTTP) : http://{ip}:{http_port}")
+    if use_https:
+        print(f"  iPhone用 (HTTPS) : https://{ip}:{https_port}")
     print("=" * 50)
     print()
+    print("【Android 初回のみ】Chromeのマイク許可設定:")
+    print(f"  1. Chrome で chrome://flags/#unsafely-treat-insecure-origin-as-secure を開く")
+    print(f"  2. テキストボックスに http://{ip}:{http_port} を入力")
+    print(f"  3. 'Relaunch' をタップして再起動")
     if use_https:
-        print("HTTPS モードで起動します（自己署名証明書）")
-        print("【初回のみ】iOSの証明書信頼設定が必要です。READMEを参照してください。")
-    else:
-        print("【初回のみ】Chromeのマイク許可設定:")
-        print(f"  1. Chrome で chrome://flags/#unsafely-treat-insecure-origin-as-secure を開く")
-        print(f"  2. テキストボックスに http://{ip}:{port} を入力")
-        print(f"  3. 'Relaunch' をタップして再起動")
+        print()
+        print("【iPhone 初回のみ】iOSの証明書信頼設定が必要です。READMEを参照してください。")
     print()
-    ssl_context = (cert_file, key_file) if use_https else None
-    app.run(host='0.0.0.0', port=port, debug=False, ssl_context=ssl_context)
+
+    if use_https:
+        t = threading.Thread(
+            target=app.run,
+            kwargs={'host': '0.0.0.0', 'port': https_port, 'debug': False, 'ssl_context': (cert_file, key_file)},
+            daemon=True
+        )
+        t.start()
+
+    app.run(host='0.0.0.0', port=http_port, debug=False)
