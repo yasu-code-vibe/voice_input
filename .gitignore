@@ -1,2 +1,4 @@
 server.pid
 server.log
+cert.pem
+key.pem

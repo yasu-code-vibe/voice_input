@@ -26,7 +26,35 @@ nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_inp
 ==================================================
 ```
 
-## 初回のみ: AndroidのChromeマイク許可設定
+## HTTPS化（iPhoneでも使う場合）
+
+自己署名証明書を生成すると、サーバーがHTTPSモードで起動します。AndroidとiPhoneの両方でマイクが使えるようになります。
+
+### 証明書の生成
+
+```bash
+cd d:/workspace_git/voice_input
+openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 3650 -nodes -subj "//CN=192.168.x.x"
+```
+
+`192.168.x.x` はPCのIPアドレスに合わせてください（`server.log` に表示されます）。
+
+> PCのIPアドレスが変わった場合は証明書を作り直してください。
+
+### iOSの証明書信頼設定（初回のみ）
+
+1. `cert.pem` をiPhoneに送る（メール・AirDrop等）
+2. iPhoneで受け取り → **プロファイルのインストール**
+3. 設定 → 一般 → VPNとデバイス管理 → インストールした証明書を信頼
+4. 設定 → 一般 → 情報 → 証明書信頼設定 → 証明書をONにする
+
+### Androidの場合
+
+HTTPS化後は `chrome://flags` の設定は不要になります。証明書の警告が表示された場合は「詳細設定」→「192.168.x.x にアクセスする（安全ではありません）」をタップして進んでください。
+
+---
+
+## 初回のみ: AndroidのChromeマイク許可設定（HTTP使用時のみ）
 
 HTTP接続でのマイク使用を許可するための設定（1回だけ必要）:
 
