@@ -183,7 +183,7 @@ HTML = """<!DOCTYPE html>
         if (finalText.trim()) {
           statusEl.textContent = '認識完了。自動送信します...';
           sendBtn.disabled = false;
-          sendBtn.click();
+          doSend();
         } else {
           statusEl.textContent = 'マイクボタンを押して話してください';
         }
@@ -210,7 +210,7 @@ HTML = """<!DOCTYPE html>
       }
     });
 
-    sendBtn.addEventListener('click', async () => {
+    async function doSend() {
       const text = transcript.textContent.trim();
       if (!text) return;
       sendBtn.disabled = true;
@@ -232,7 +232,9 @@ HTML = """<!DOCTYPE html>
         resultEl.classList.add('error');
         sendBtn.disabled = false;
       }
-    });
+    }
+
+    sendBtn.addEventListener('click', doSend);
 
     clearBtn.addEventListener('click', () => {
       finalText = '';
