@@ -181,8 +181,9 @@ HTML = """<!DOCTYPE html>
         interimText = '';
         transcript.textContent = finalText;
         if (finalText.trim()) {
-          statusEl.textContent = '認識完了。「送信」でクリップボードへコピーされます。';
+          statusEl.textContent = '認識完了。自動送信します...';
           sendBtn.disabled = false;
+          sendBtn.click();
         } else {
           statusEl.textContent = 'マイクボタンを押して話してください';
         }
