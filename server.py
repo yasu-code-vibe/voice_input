@@ -53,16 +53,25 @@ HTML = """<!DOCTYPE html>
       min-height: 1.2em;
     }
     #status.error { color: #f38ba8; }
+    #main-group {
+      display: flex;
+      align-items: stretch;
+      gap: 10px;
+      width: 100%;
+      max-width: 560px;
+    }
     #mic-btn {
-      width: 100px;
-      height: 100px;
+      flex-shrink: 0;
+      width: 72px;
+      height: 72px;
       border-radius: 50%;
       border: none;
       background: #313244;
-      font-size: 2.5rem;
+      font-size: 2rem;
       cursor: pointer;
       transition: background 0.2s, transform 0.1s;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      align-self: center;
     }
     #mic-btn.listening {
       background: #f38ba8;
@@ -74,33 +83,32 @@ HTML = """<!DOCTYPE html>
       100% { transform: scale(1); }
     }
     #transcript {
-      width: 100%;
-      max-width: 480px;
-      min-height: 120px;
+      flex: 1;
+      min-height: 90px;
       background: #313244;
       border: 1px solid #45475a;
       border-radius: 8px;
-      padding: 12px;
+      padding: 10px;
       font-size: 1rem;
       line-height: 1.6;
       white-space: pre-wrap;
       word-break: break-all;
     }
-    .btn-row {
+    .btn-col {
       display: flex;
-      gap: 12px;
-      width: 100%;
-      max-width: 480px;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
     }
     .btn {
-      flex: 1;
-      padding: 14px;
+      padding: 10px 14px;
       border: none;
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: 0.9rem;
       cursor: pointer;
       font-weight: bold;
       transition: opacity 0.2s;
+      white-space: nowrap;
     }
     .btn:disabled { opacity: 0.4; cursor: default; }
     #send-btn { background: #89b4fa; color: #1e1e2e; }
@@ -156,13 +164,13 @@ HTML = """<!DOCTYPE html>
   <h1>🎤 音声入力 → VS Code</h1>
   <div id="status">マイクボタンを押して話してください</div>
 
-  <button id="mic-btn" title="音声認識 開始/停止">🎤</button>
-
-  <div id="transcript" placeholder="ここにテキストが表示されます"></div>
-
-  <div class="btn-row">
-    <button class="btn" id="send-btn" disabled>📋 送信（クリップボードへ）</button>
-    <button class="btn" id="clear-btn">🗑 クリア</button>
+  <div id="main-group">
+    <button id="mic-btn" title="音声認識 開始/停止">🎤</button>
+    <div id="transcript" placeholder="ここにテキストが表示されます"></div>
+    <div class="btn-col">
+      <button class="btn" id="send-btn" disabled>📋 送信</button>
+      <button class="btn" id="clear-btn">🗑 クリア</button>
+    </div>
   </div>
 
   <div id="result"></div>
