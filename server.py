@@ -4,11 +4,28 @@
 スマホのブラウザ(Android Chrome)から音声入力し、PCのクリップボードへ転送する
 """
 
+import os
+import atexit
 import socket
 import pyperclip
 from flask import Flask, request, jsonify, render_template_string
 
 app = Flask(__name__)
+
+PID_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'server.pid')
+
+def _write_pid():
+    with open(PID_FILE, 'w') as f:
+        f.write(str(os.getpid()))
+
+def _remove_pid():
+    try:
+        os.remove(PID_FILE)
+    except OSError:
+        pass
+
+_write_pid()
+atexit.register(_remove_pid)
 
 HTML = """<!DOCTYPE html>
 <html lang="ja">
