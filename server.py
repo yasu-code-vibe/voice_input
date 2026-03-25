@@ -42,11 +42,12 @@ HTML = """<!DOCTYPE html>
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100vh;
-      padding: 24px 16px;
+      height: 100vh;
+      padding: 24px 16px 16px;
       gap: 16px;
+      overflow: hidden;
     }
-    h1 { font-size: 1.2rem; color: #89b4fa; }
+    h1 { font-size: 1.2rem; color: #89b4fa; margin: -8px 0; }
     #status {
       font-size: 0.85rem;
       color: #a6e3a1;
@@ -113,27 +114,35 @@ HTML = """<!DOCTYPE html>
     .btn:disabled { opacity: 0.4; cursor: default; }
     #send-btn { background: #89b4fa; color: #1e1e2e; }
     #clear-btn { background: #45475a; color: #cdd6f4; }
+    #pc-clip-btn { background: #a6e3a1; color: #1e1e2e; }
     #result {
       font-size: 0.85rem;
-      min-height: 1.2em;
       color: #a6e3a1;
     }
     #result.error { color: #f38ba8; }
     #history-section {
       width: 100%;
       max-width: 480px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      margin-top: -8px;
     }
     #history-section h2 {
       font-size: 0.9rem;
       color: #89b4fa;
       margin-bottom: 8px;
+      flex-shrink: 0;
     }
     #history-list {
       display: flex;
       flex-direction: column;
       gap: 6px;
-      max-height: 300px;
+      flex: 1;
+      min-height: 0;
       overflow-y: auto;
+      padding-bottom: 16px;
     }
     .history-item {
       display: flex;
@@ -175,6 +184,8 @@ HTML = """<!DOCTYPE html>
     </div>
   </div>
 
+  <button class="btn" id="pc-clip-btn" style="width:100%;max-width:560px;">📥 PCクリップボードを取得</button>
+
   <div id="result"></div>
 
   <div id="history-section">
@@ -190,10 +201,9 @@ HTML = """<!DOCTYPE html>
     const statusEl = document.getElementById('status');
     const resultEl = document.getElementById('result');
     const historyList = document.getElementById('history-list');
-
     const HISTORY_KEY = 'voice_input_history';
     const HISTORY_SEQ_KEY = 'voice_input_seq';
-    const HISTORY_MAX = 20;
+    const HISTORY_MAX = 1000;
 
     function loadHistory() {
       try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
@@ -356,6 +366,25 @@ HTML = """<!DOCTYPE html>
 
     sendBtn.addEventListener('click', doSend);
 
+    document.getElementById('pc-clip-btn').addEventListener('click', async () => {
+      const pcClipResult = document.getElementById('pc-clip-result');
+      try {
+        const res = await fetch('/clipboard');
+        const data = await res.json();
+        if (data.status === 'ok') {
+          finalText = data.text;
+          transcript.textContent = finalText;
+          sendBtn.disabled = false;
+          addHistory(finalText);
+        } else {
+          throw new Error(data.message || '不明なエラー');
+        }
+      } catch (e) {
+        resultEl.textContent = '❌ PCクリップボード取得失敗: ' + e.message;
+        resultEl.classList.add('error');
+      }
+    });
+
     clearBtn.addEventListener('click', () => {
       finalText = '';
       interimText = '';
@@ -387,6 +416,15 @@ def send():
     pyperclip.copy(text + ' ')
     print(f"[受信] {text}")
     return jsonify({'status': 'ok'})
+
+
+@app.route('/clipboard', methods=['GET'])
+def clipboard():
+    text = pyperclip.paste()
+    if not text:
+        return jsonify({'status': 'error', 'message': 'クリップボードが空です'}), 200
+    print(f"[クリップボード送信] {text[:50]}")
+    return jsonify({'status': 'ok', 'text': text})
 
 
 def get_local_ip():
