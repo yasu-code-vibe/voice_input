@@ -189,15 +189,7 @@ HTML = """<!DOCTYPE html>
     }
 
     /* マイクモード切替 */
-    #settings-mic-mode-btn {
-      background: #313244;
-      color: #cdd6f4;
-      border: 1px solid #45475a;
-      border-radius: 8px;
-      padding: 8px 14px;
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
+
 
     /* バージョン情報 */
     .version-text {
@@ -338,22 +330,6 @@ HTML = """<!DOCTYPE html>
     #send-btn { background: #89b4fa; color: #1e1e2e; }
     #clear-btn { background: #45475a; color: #cdd6f4; }
     #pc-clip-btn { background: #a6e3a1; color: #1e1e2e; }
-    #bottom-bar {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    #mic-mode-btn {
-      flex: 1;
-      background: #313244;
-      color: #a6adc8;
-      border: 1px solid #45475a;
-      border-radius: 8px;
-      padding: 6px 10px;
-      font-size: 0.75rem;
-      cursor: pointer;
-      text-align: center;
-    }
   </style>
 </head>
 <body>
@@ -385,9 +361,6 @@ HTML = """<!DOCTYPE html>
           </div>
         </div>
         <button class="btn" id="pc-clip-btn">📥 PCクリップボードを取得</button>
-        <div id="bottom-bar">
-          <button id="mic-mode-btn">🔄 フローティングモードに切替</button>
-        </div>
       </div>
     </div>
 
@@ -444,7 +417,6 @@ HTML = """<!DOCTYPE html>
     const statusEl = document.getElementById('status');
     const resultEl = document.getElementById('result');
     const historyList = document.getElementById('history-list');
-    const micModeBtn = document.getElementById('mic-mode-btn');
 
     // --- 設定画面 ---
     const mainScreen     = document.getElementById('main-screen');
