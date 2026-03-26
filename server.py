@@ -45,16 +45,158 @@ HTML = """<!DOCTYPE html>
       align-items: center;
       height: 100dvh;
       padding: 12px 16px 16px;
+      overflow: hidden;
     }
     body.ios    { padding-bottom: 0px; }
     body.android { padding-bottom: 36px;
       gap: 8px;
-      overflow: hidden;
     }
-    h1 { font-size: 1.2rem; color: #89b4fa; flex-shrink: 0; }
-    #history-section {
+
+    /* ── アプリルート ── */
+    #app-root {
       width: 100%;
       max-width: 560px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── メイン画面 ── */
+    #main-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: transform 0.3s ease;
+    }
+    #main-screen.slide-out {
+      transform: translateX(-100%);
+    }
+
+    /* ── 設定画面 ── */
+    #settings-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      background: #1e1e2e;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+    }
+    #settings-screen.slide-in {
+      transform: translateX(0);
+    }
+
+    /* ── タイトルバー ── */
+    .title-bar {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .title-bar h1 {
+      flex: 1;
+      font-size: 1.2rem;
+      color: #89b4fa;
+    }
+    #settings-btn {
+      background: none;
+      border: none;
+      color: #89b4fa;
+      font-size: 1.4rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      line-height: 1;
+    }
+    #settings-back-btn {
+      background: none;
+      border: none;
+      color: #89b4fa;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 4px 8px 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ── 設定項目 ── */
+    .settings-section {
+      border-bottom: 1px solid #313244;
+      padding: 16px 0;
+    }
+    .settings-section:last-child { border-bottom: none; }
+    .settings-label {
+      font-size: 0.8rem;
+      color: #6c7086;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+    .settings-row-title {
+      font-size: 0.95rem;
+      color: #cdd6f4;
+    }
+    .settings-row-sub {
+      font-size: 0.78rem;
+      color: #6c7086;
+      margin-top: 2px;
+    }
+
+    /* セグメントコントロール（行末付加） */
+    .seg-ctrl {
+      display: flex;
+      background: #313244;
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .seg-ctrl button {
+      background: none;
+      border: none;
+      color: #6c7086;
+      font-size: 0.8rem;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .seg-ctrl button.active {
+      background: #89b4fa;
+      color: #1e1e2e;
+      font-weight: bold;
+    }
+
+    /* マイクモード切替 */
+    #settings-mic-mode-btn {
+      background: #313244;
+      color: #cdd6f4;
+      border: 1px solid #45475a;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    /* バージョン情報 */
+    .version-text {
+      font-size: 0.9rem;
+      color: #6c7086;
+    }
+
+    #history-section {
+      width: 100%;
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -101,7 +243,6 @@ HTML = """<!DOCTYPE html>
     .resend-btn:active { opacity: 0.7; }
     #bottom-area {
       width: 100%;
-      max-width: 560px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -206,29 +347,81 @@ HTML = """<!DOCTYPE html>
   </style>
 </head>
 <body>
-  <h1>🎤 音声入力 → VS Code</h1>
-
-  <div id="history-section">
-    <h2>📜 履歴</h2>
-    <div id="history-list"></div>
+  <div class="title-bar">
+    <h1>🎤 音声入力 → VS Code</h1>
+    <button id="settings-btn" title="設定">⚙️</button>
   </div>
 
-  <div id="bottom-area">
-    <div id="status">マイクボタンを押して話してください</div>
-    <div id="result"></div>
-    <div id="main-group">
-      <button id="mic-btn" title="音声認識 開始/停止">🎤</button>
-      <div id="mic-placeholder"></div>
-      <div id="transcript" placeholder="ここにテキストが表示されます"></div>
-      <div class="btn-col">
-        <button class="btn" id="send-btn" disabled>📋 送信</button>
-        <button class="btn" id="clear-btn">🗑 クリア</button>
+  <div id="app-root">
+
+    <!-- メイン画面 -->
+    <div id="main-screen">
+      <div id="history-section">
+        <h2>📜 履歴</h2>
+        <div id="history-list"></div>
+      </div>
+
+      <div id="bottom-area">
+        <div id="status">マイクボタンを押して話してください</div>
+        <div id="result"></div>
+        <div id="main-group">
+          <button id="mic-btn" title="音声認識 開始/停止">🎤</button>
+          <div id="mic-placeholder"></div>
+          <div id="transcript" placeholder="ここにテキストが表示されます"></div>
+          <div class="btn-col">
+            <button class="btn" id="send-btn" disabled>📋 送信</button>
+            <button class="btn" id="clear-btn">🗑 クリア</button>
+          </div>
+        </div>
+        <button class="btn" id="pc-clip-btn">📥 PCクリップボードを取得</button>
+        <div id="bottom-bar">
+          <button id="mic-mode-btn">🔄 フローティングモードに切替</button>
+        </div>
       </div>
     </div>
-    <button class="btn" id="pc-clip-btn">📥 PCクリップボードを取得</button>
-    <div id="bottom-bar">
-      <button id="mic-mode-btn">🔄 フローティングモードに切替</button>
+
+    <!-- 設定画面 -->
+    <div id="settings-screen">
+      <div class="title-bar" style="padding: 4px 0 12px;">
+        <button id="settings-back-btn">◀ 戻る</button>
+        <h1 style="font-size:1.1rem;">設定</h1>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">入力</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-title">行末の付加文字</div>
+            <div class="settings-row-sub">クリップボードへ送信時に末尾に追加</div>
+          </div>
+          <div class="seg-ctrl" id="suffix-ctrl">
+            <button data-val="none">なし</button>
+            <button data-val="space">スペース</button>
+            <button data-val="newline">改行</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">マイク</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-title">マイクボタンのモード</div>
+            <div class="settings-row-sub">スナップ：左右固定 / フローティング：自由移動</div>
+          </div>
+          <button id="settings-mic-mode-btn">スナップモード</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">アプリ情報</div>
+        <div class="settings-row">
+          <div class="settings-row-title">バージョン</div>
+          <div class="version-text">v1.0.0</div>
+        </div>
+      </div>
     </div>
+
   </div>
 
   <script>
@@ -245,6 +438,55 @@ HTML = """<!DOCTYPE html>
     const resultEl = document.getElementById('result');
     const historyList = document.getElementById('history-list');
     const micModeBtn = document.getElementById('mic-mode-btn');
+
+    // --- 設定画面 ---
+    const mainScreen     = document.getElementById('main-screen');
+    const settingsScreen = document.getElementById('settings-screen');
+
+    document.getElementById('settings-btn').addEventListener('click', () => {
+      mainScreen.classList.add('slide-out');
+      settingsScreen.classList.add('slide-in');
+    });
+    document.getElementById('settings-back-btn').addEventListener('click', () => {
+      mainScreen.classList.remove('slide-out');
+      settingsScreen.classList.remove('slide-in');
+    });
+
+    // --- 行末付加設定 ---
+    const SUFFIX_KEY = 'voice_suffix';
+    const suffixCtrl = document.getElementById('suffix-ctrl');
+
+    function getSuffix() {
+      return localStorage.getItem(SUFFIX_KEY) || 'space';
+    }
+    function setSuffix(val) {
+      localStorage.setItem(SUFFIX_KEY, val);
+      suffixCtrl.querySelectorAll('button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.val === val);
+      });
+    }
+    suffixCtrl.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => setSuffix(btn.dataset.val));
+    });
+    setSuffix(getSuffix());
+
+    function applyText(text) {
+      const suffix = getSuffix();
+      if (suffix === 'space')   return text + ' ';
+      if (suffix === 'newline') return text + '\\n';
+      return text;
+    }
+
+    // --- 設定画面のマイクモードボタン ---
+    const settingsMicModeBtn = document.getElementById('settings-mic-mode-btn');
+    function updateSettingsMicModeBtn() {
+      settingsMicModeBtn.textContent = micMode === 'snap' ? 'スナップモード' : 'フローティングモード';
+    }
+    settingsMicModeBtn.addEventListener('click', () => {
+      if (micMode === 'snap') enterFloatMode();
+      else enterSnapMode();
+      updateSettingsMicModeBtn();
+    });
 
     // --- マイクボタン移動モード ---
     const MIC_MODE_KEY = 'mic_mode';         // 'snap' | 'float'
@@ -278,7 +520,6 @@ HTML = """<!DOCTYPE html>
       mainGroup.insertBefore(micBtn, mainGroup.firstChild);
       const side = localStorage.getItem(MIC_SNAP_KEY) || 'left';
       applySnapSide(side);
-      micModeBtn.textContent = '🔄 フローティングモードに切替';
     }
 
     function enterFloatMode() {
@@ -293,13 +534,7 @@ HTML = """<!DOCTYPE html>
       } else {
         applyFloatPos(36, window.innerHeight - 120);
       }
-      micModeBtn.textContent = '🔄 スナップモードに切替';
     }
-
-    micModeBtn.addEventListener('click', () => {
-      if (micMode === 'snap') enterFloatMode();
-      else enterSnapMode();
-    });
 
     // スナップモード：ドラッグで左右切替
     let snapDragStartX = null;
@@ -348,6 +583,7 @@ HTML = """<!DOCTYPE html>
       const side = localStorage.getItem(MIC_SNAP_KEY) || 'left';
       applySnapSide(side);
     }
+    updateSettingsMicModeBtn();
     const HISTORY_KEY = 'voice_input_history';
     const HISTORY_SEQ_KEY = 'voice_input_seq';
     const HISTORY_MAX = 1000;
@@ -502,7 +738,7 @@ HTML = """<!DOCTYPE html>
         const res = await fetch('/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text })
+          body: JSON.stringify({ text: applyText(text) })
         });
         const data = await res.json();
         if (data.status === 'ok') {
@@ -569,7 +805,7 @@ def send():
     text = data['text'].strip()
     if not text:
         return jsonify({'status': 'error', 'message': '空のテキストです'}), 400
-    pyperclip.copy(text + ' ')
+    pyperclip.copy(text)
     print(f"[受信] {text}")
     return jsonify({'status': 'ok'})
 
