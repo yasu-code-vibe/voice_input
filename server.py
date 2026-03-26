@@ -175,6 +175,7 @@ HTML = """<!DOCTYPE html>
       border: none;
       color: #6c7086;
       font-size: 0.8rem;
+      font-weight: bold;
       padding: 10px 14px;
       border-radius: 6px;
       cursor: pointer;
@@ -184,7 +185,6 @@ HTML = """<!DOCTYPE html>
     .seg-ctrl button.active {
       background: #89b4fa;
       color: #1e1e2e;
-      font-weight: bold;
     }
 
     /* マイクモード切替 */
