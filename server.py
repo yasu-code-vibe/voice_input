@@ -413,7 +413,7 @@ HTML = """<!DOCTYPE html>
       <div class="settings-section">
         <div class="settings-label">マイク</div>
         <div class="settings-row-title">マイクボタンのモード</div>
-        <div class="settings-row-sub" style="margin: 4px 0 10px;">スナップ：左右にスナップ固定 / フローティング：画面上を自由移動</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;">スナップ：左右にスナップ固定<br>フローティング：画面上を自由移動</div>
         <div class="seg-ctrl" id="mic-mode-ctrl">
           <button data-val="snap">スナップ</button>
           <button data-val="float">フローティング</button>
@@ -450,13 +450,16 @@ HTML = """<!DOCTYPE html>
     const mainScreen     = document.getElementById('main-screen');
     const settingsScreen = document.getElementById('settings-screen');
 
-    document.getElementById('settings-btn').addEventListener('click', () => {
+    const settingsBtn = document.getElementById('settings-btn');
+    settingsBtn.addEventListener('click', () => {
       mainScreen.classList.add('slide-out');
       settingsScreen.classList.add('slide-in');
+      settingsBtn.style.visibility = 'hidden';
     });
     document.getElementById('settings-back-btn').addEventListener('click', () => {
       mainScreen.classList.remove('slide-out');
       settingsScreen.classList.remove('slide-in');
+      settingsBtn.style.visibility = 'visible';
     });
 
     // --- 行末付加設定 ---
