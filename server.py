@@ -104,6 +104,11 @@ HTML = """<!DOCTYPE html>
       flex: 1;
       font-size: 1.2rem;
       color: #89b4fa;
+      text-align: center;
+    }
+    .title-spacer {
+      width: 40px;
+      flex-shrink: 0;
     }
     #settings-btn {
       background: none;
@@ -113,6 +118,8 @@ HTML = """<!DOCTYPE html>
       cursor: pointer;
       padding: 4px 8px;
       line-height: 1;
+      width: 40px;
+      flex-shrink: 0;
     }
     #settings-back-btn {
       background: none;
@@ -350,6 +357,7 @@ HTML = """<!DOCTYPE html>
 </head>
 <body>
   <div class="title-bar">
+    <div class="title-spacer"></div>
     <h1>🎤 音声入力 → VS Code</h1>
     <button id="settings-btn" title="設定">⚙️</button>
   </div>
