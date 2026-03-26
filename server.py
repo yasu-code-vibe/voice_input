@@ -172,7 +172,7 @@ HTML = """<!DOCTYPE html>
     }
     .seg-ctrl button {
       background: none;
-      border: none;
+      border: 2px solid transparent;
       color: #6c7086;
       font-size: 0.8rem;
       font-weight: bold;
@@ -181,10 +181,13 @@ HTML = """<!DOCTYPE html>
       cursor: pointer;
       transition: background 0.15s, color 0.15s;
       white-space: nowrap;
+      min-width: 90px;
+      text-align: center;
     }
     .seg-ctrl button.active {
       background: #89b4fa;
       color: #1e1e2e;
+      border: 2px solid transparent;
     }
 
     /* マイクモード切替 */
