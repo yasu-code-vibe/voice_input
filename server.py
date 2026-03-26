@@ -405,7 +405,7 @@ HTML = """<!DOCTYPE html>
             <div class="settings-row-title">行末の付加文字</div>
             <div class="settings-row-sub">クリップボードへ送信時に末尾に追加</div>
           </div>
-          <div class="seg-ctrl" id="suffix-ctrl">
+          <div class="seg-ctrl" id="suffix-ctrl" style="display: inline-flex; flex-direction: column;">
             <button data-val="none">なし</button>
             <button data-val="space">スペース</button>
             <button data-val="newline">改行</button>
