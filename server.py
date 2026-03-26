@@ -165,21 +165,20 @@ HTML = """<!DOCTYPE html>
     /* セグメントコントロール（行末付加） */
     .seg-ctrl {
       display: flex;
-      background: #313244;
-      border-radius: 8px;
-      padding: 3px;
-      gap: 6px;
+      background: none;
+      padding: 0;
+      gap: 8px;
     }
     .seg-ctrl button {
-      background: none;
-      border: 2px solid #45475a;
-      color: #6c7086;
-      font-size: 0.8rem;
+      background: #45475a;
+      border: none;
+      color: #cdd6f4;
+      font-size: 0.9rem;
       font-weight: bold;
-      padding: 10px 22px;
-      border-radius: 6px;
+      padding: 10px 14px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      transition: background 0.15s, color 0.15s;
       white-space: nowrap;
       min-width: 90px;
       text-align: center;
@@ -187,7 +186,6 @@ HTML = """<!DOCTYPE html>
     .seg-ctrl button.active {
       background: #89b4fa;
       color: #1e1e2e;
-      border: 2px solid #89b4fa;
     }
 
     /* マイクモード切替 */
