@@ -47,7 +47,7 @@ HTML = """<!DOCTYPE html>
       padding: 12px 16px 16px;
       overflow: hidden;
     }
-    body.ios    { padding-bottom: 0px; }
+    body.ios    { padding-top: 20px; padding-bottom: 0px; }
     body.android { padding-bottom: 36px;
       gap: 8px;
     }
@@ -424,7 +424,10 @@ HTML = """<!DOCTYPE html>
         <div class="settings-label">アプリ情報</div>
         <div class="settings-row">
           <div class="settings-row-title">バージョン</div>
-          <div class="version-text">v1.0.0</div>
+          <div style="text-align: right;">
+            <div class="version-text">voice_input</div>
+            <div class="version-text">v1.0.0</div>
+          </div>
         </div>
       </div>
     </div>
