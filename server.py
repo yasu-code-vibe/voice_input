@@ -47,7 +47,7 @@ HTML = """<!DOCTYPE html>
       padding: 12px 16px 16px;
       overflow: hidden;
     }
-    body.ios    { padding-top: 40px; padding-bottom: 0px; }
+    body.ios    { padding-top: 30px; padding-bottom: 0px; }
     body.android { padding-bottom: 36px;
       gap: 8px;
     }
@@ -662,6 +662,7 @@ HTML = """<!DOCTYPE html>
     }
 
     renderHistory();
+    setTimeout(() => { historyList.scrollTop = historyList.scrollHeight; }, 50);
 
     let recognition = null;
     let isListening = false;
