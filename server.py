@@ -168,7 +168,7 @@ HTML = """<!DOCTYPE html>
       background: #313244;
       border-radius: 8px;
       padding: 3px;
-      gap: 2px;
+      gap: 6px;
     }
     .seg-ctrl button {
       background: none;
