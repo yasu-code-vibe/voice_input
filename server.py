@@ -394,7 +394,8 @@ HTML = """<!DOCTYPE html>
     <div id="settings-screen">
       <div class="title-bar" style="padding: 4px 0 12px;">
         <button id="settings-back-btn">◀ 戻る</button>
-        <h1 style="font-size:1.1rem;">設定</h1>
+        <h1 style="font-size:1.1rem; text-align:center;">設定</h1>
+        <div class="title-spacer"></div>
       </div>
 
       <div class="settings-section">
@@ -419,7 +420,10 @@ HTML = """<!DOCTYPE html>
             <div class="settings-row-title">マイクボタンのモード</div>
             <div class="settings-row-sub">スナップ：左右固定 / フローティング：自由移動</div>
           </div>
-          <button id="settings-mic-mode-btn">スナップモード</button>
+          <div class="seg-ctrl" id="mic-mode-ctrl">
+            <button data-val="snap">スナップ</button>
+            <button data-val="float">フローティング</button>
+          </div>
         </div>
       </div>
 
@@ -487,15 +491,19 @@ HTML = """<!DOCTYPE html>
       return text;
     }
 
-    // --- 設定画面のマイクモードボタン ---
-    const settingsMicModeBtn = document.getElementById('settings-mic-mode-btn');
-    function updateSettingsMicModeBtn() {
-      settingsMicModeBtn.textContent = micMode === 'snap' ? 'スナップモード' : 'フローティングモード';
+    // --- 設定画面のマイクモード セグメントコントロール ---
+    const micModeCtrl = document.getElementById('mic-mode-ctrl');
+    function updateMicModeCtrl() {
+      micModeCtrl.querySelectorAll('button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.val === micMode);
+      });
     }
-    settingsMicModeBtn.addEventListener('click', () => {
-      if (micMode === 'snap') enterFloatMode();
-      else enterSnapMode();
-      updateSettingsMicModeBtn();
+    micModeCtrl.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.val === 'snap') enterSnapMode();
+        else enterFloatMode();
+        updateMicModeCtrl();
+      });
     });
 
     // --- マイクボタン移動モード ---
@@ -593,7 +601,7 @@ HTML = """<!DOCTYPE html>
       const side = localStorage.getItem(MIC_SNAP_KEY) || 'left';
       applySnapSide(side);
     }
-    updateSettingsMicModeBtn();
+    updateMicModeCtrl();
     const HISTORY_KEY = 'voice_input_history';
     const HISTORY_SEQ_KEY = 'voice_input_seq';
     const HISTORY_MAX = 1000;
