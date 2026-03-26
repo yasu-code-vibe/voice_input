@@ -97,6 +97,8 @@ HTML = """<!DOCTYPE html>
       display: flex;
       align-items: center;
       flex-shrink: 0;
+      width: 100%;
+      max-width: 560px;
     }
     .title-bar h1 {
       flex: 1;
