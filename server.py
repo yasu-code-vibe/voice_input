@@ -175,7 +175,7 @@ HTML = """<!DOCTYPE html>
       border: none;
       color: #6c7086;
       font-size: 0.8rem;
-      padding: 5px 10px;
+      padding: 10px 14px;
       border-radius: 6px;
       cursor: pointer;
       transition: background 0.15s, color 0.15s;
