@@ -817,8 +817,8 @@ def send():
     data = request.get_json(silent=True)
     if not data or 'text' not in data:
         return jsonify({'status': 'error', 'message': 'テキストがありません'}), 400
-    text = data['text'].strip()
-    if not text:
+    text = data['text']
+    if not text or not text.strip():
         return jsonify({'status': 'error', 'message': '空のテキストです'}), 400
     pyperclip.copy(text)
     print(f"[受信] {text}")
