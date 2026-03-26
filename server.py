@@ -400,30 +400,22 @@ HTML = """<!DOCTYPE html>
 
       <div class="settings-section">
         <div class="settings-label">入力</div>
-        <div class="settings-row">
-          <div>
-            <div class="settings-row-title">行末の付加文字</div>
-            <div class="settings-row-sub">クリップボードへ送信時に末尾に追加</div>
-          </div>
-          <div class="seg-ctrl" id="suffix-ctrl" style="display: inline-flex; flex-direction: column;">
-            <button data-val="none">なし</button>
-            <button data-val="space">スペース</button>
-            <button data-val="newline">改行</button>
-          </div>
+        <div class="settings-row-title">行末の付加文字</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;">クリップボードへ送信時に末尾に追加</div>
+        <div class="seg-ctrl" id="suffix-ctrl">
+          <button data-val="none">なし</button>
+          <button data-val="space">スペース</button>
+          <button data-val="newline">改行</button>
         </div>
       </div>
 
       <div class="settings-section">
         <div class="settings-label">マイク</div>
-        <div class="settings-row">
-          <div>
-            <div class="settings-row-title">マイクボタンのモード</div>
-            <div class="settings-row-sub">スナップ：左右にスナップ固定<br>フローティング：画面上を自由移動</div>
-          </div>
-          <div class="seg-ctrl" id="mic-mode-ctrl" style="display: inline-flex; flex-direction: column;">
-            <button data-val="snap">スナップ</button>
-            <button data-val="float">フローティング</button>
-          </div>
+        <div class="settings-row-title">マイクボタンのモード</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;">スナップ：左右にスナップ固定 / フローティング：画面上を自由移動</div>
+        <div class="seg-ctrl" id="mic-mode-ctrl">
+          <button data-val="snap">スナップ</button>
+          <button data-val="float">フローティング</button>
         </div>
       </div>
 
