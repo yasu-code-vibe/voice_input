@@ -418,7 +418,7 @@ HTML = """<!DOCTYPE html>
         <div class="settings-row">
           <div>
             <div class="settings-row-title">マイクボタンのモード</div>
-            <div class="settings-row-sub">スナップ：左右固定 / フローティング：自由移動</div>
+            <div class="settings-row-sub">スナップ：左右にスナップ固定<br>フローティング：画面上を自由移動</div>
           </div>
           <div class="seg-ctrl" id="mic-mode-ctrl">
             <button data-val="snap">スナップ</button>
