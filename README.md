@@ -54,7 +54,7 @@ nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_inp
 ## 使い方
 
 1. VS Codeを起動（サーバーが自動起動）
-2. スマホで上記URLにアクセス（AndroidはChrome、iPhoneはSafari）
+2. スマホで上記URLにアクセス（AndroidはChrome、iPhoneはSafari or Chrome）
 3. 🎤 ボタンをタップして話す
 4. 話し終わると自動でPCのクリップボードへ送信され、履歴の下端に追加される
 5. VS CodeのClaudeCodeチャット欄をクリックして `Ctrl+V` で貼り付け
@@ -146,7 +146,7 @@ openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 3650 -nod
 **Step 1: 証明書をダウンロードする**
 
 1. iPhoneとPCが同じWi-Fiに接続されていることを確認
-2. iPhoneの **Safari** を開く（ChromeはNG）
+2. iPhoneの **Safari または Chrome** を開く
 3. アドレスバーに以下を入力してアクセス:
 
 ```
@@ -179,5 +179,5 @@ http://192.168.x.x:5000/cert
 - PCとスマホが同じWi-Fiに接続されている必要があります
 - 音声認識はGoogleの音声認識サービスを使用するため、インターネット接続が必要です
 - Web Speech APIはAndroid Chrome・iPhone Safari・PC版Chromeで動作します
-- iPhoneはSafariを使用してください（Chromeでは音声認識・証明書ダウンロードが動作しません）
+- iPhoneはSafariまたはChromeを使用してください
 - 履歴はブラウザのlocalStorageに保存されるため、端末・URLが変わるとリセットされます
