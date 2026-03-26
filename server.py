@@ -415,15 +415,11 @@ HTML = """<!DOCTYPE html>
 
       <div class="settings-section">
         <div class="settings-label">マイク</div>
-        <div class="settings-row">
-          <div>
-            <div class="settings-row-title">マイクボタンのモード</div>
-            <div class="settings-row-sub">スナップ：左右にスナップ固定<br>フローティング：画面上を自由移動</div>
-          </div>
-          <div class="seg-ctrl" id="mic-mode-ctrl">
-            <button data-val="snap">スナップ</button>
-            <button data-val="float">フローティング</button>
-          </div>
+        <div class="settings-row-title">マイクボタンのモード</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;">スナップ：左右にスナップ固定<br>フローティング：画面上を自由移動</div>
+        <div class="seg-ctrl" id="mic-mode-ctrl">
+          <button data-val="snap">スナップ</button>
+          <button data-val="float">フローティング</button>
         </div>
       </div>
 
