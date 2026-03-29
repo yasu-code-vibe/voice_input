@@ -278,7 +278,7 @@ HTML = """<!DOCTYPE html>
     }
     .resend-btn:active { opacity: 0.7; }
     .seq-local { color: #89b4fa; font-weight: bold; }
-    .seq-server { color: #ffff00; font-weight: bold; }
+    .seq-server { color: #f9e2af; font-weight: bold; }
     #confirm-overlay {
       display: none;
       position: fixed;
