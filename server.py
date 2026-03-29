@@ -330,6 +330,7 @@ HTML = """<!DOCTYPE html>
     #send-btn { background: #89b4fa; color: #1e1e2e; }
     #clear-btn { background: #45475a; color: #cdd6f4; }
     #pc-clip-btn { background: #a6e3a1; color: #1e1e2e; }
+    body.ios-chrome { padding-bottom: 20px; }
   </style>
 </head>
 <body>
@@ -405,8 +406,13 @@ HTML = """<!DOCTYPE html>
   </div>
 
   <script>
-    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) document.body.classList.add('ios');
-    else if (/Android/i.test(navigator.userAgent)) document.body.classList.add('android');
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      document.body.classList.add('ios');
+      if (/CriOS/i.test(navigator.userAgent)) {
+        document.body.classList.add('ios-chrome');
+        document.body.style.paddingBottom = '20px';
+      }
+    } else if (/Android/i.test(navigator.userAgent)) document.body.classList.add('android');
 
     const micBtn = document.getElementById('mic-btn');
     const micPlaceholder = document.getElementById('mic-placeholder');
