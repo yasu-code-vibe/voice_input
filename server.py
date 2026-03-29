@@ -223,6 +223,7 @@ HTML = """<!DOCTYPE html>
     .history-item {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 8px;
       background: #313244;
       border-radius: 6px;
@@ -233,6 +234,15 @@ HTML = """<!DOCTYPE html>
       font-size: 0.9rem;
       word-break: break-all;
       color: #cdd6f4;
+      cursor: pointer;
+      user-select: none;
+    }
+    .history-ts {
+      display: none;
+      width: 100%;
+      font-size: 0.75rem;
+      color: #6c7086;
+      padding-top: 2px;
     }
     .resend-btn {
       flex-shrink: 0;
@@ -606,11 +616,18 @@ HTML = """<!DOCTYPE html>
 
     function addHistory(text) {
       const history = loadHistory().filter(t => t.text !== text);
-      history.unshift({ seq: nextSeq(), text });
+      history.unshift({ seq: nextSeq(), text, ts: new Date().toISOString() });
       if (history.length > HISTORY_MAX) history.pop();
       saveHistory(history);
       renderHistory();
       historyList.scrollTop = historyList.scrollHeight;
+    }
+
+    function formatTs(isoStr) {
+      if (!isoStr) return '';
+      const d = new Date(isoStr);
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
     }
 
     function renderHistory() {
@@ -619,11 +636,13 @@ HTML = """<!DOCTYPE html>
       history.slice().reverse().forEach(entry => {
         const text = typeof entry === 'string' ? entry : entry.text;
         const seq  = typeof entry === 'string' ? '' : String(entry.seq).padStart(3, '0');
+        const ts   = typeof entry === 'string' ? '' : (entry.ts || '');
         const item = document.createElement('div');
         item.className = 'history-item';
         const span = document.createElement('span');
         span.className = 'history-text';
         span.textContent = (seq ? `[${seq}] ` : '') + text;
+        item.appendChild(span);
         const resendBtn = document.createElement('button');
         resendBtn.className = 'resend-btn';
         resendBtn.textContent = '再送';
@@ -641,9 +660,20 @@ HTML = """<!DOCTYPE html>
           saveHistory(history);
           renderHistory();
         });
-        item.appendChild(span);
         item.appendChild(resendBtn);
         item.appendChild(delBtn);
+        if (ts) {
+          const tsEl = document.createElement('span');
+          tsEl.className = 'history-ts';
+          tsEl.textContent = formatTs(ts);
+          span.addEventListener('click', () => {
+            tsEl.style.display = tsEl.style.display === 'block' ? 'none' : 'block';
+            if (tsEl.style.display === 'block') {
+              tsEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+          });
+          item.appendChild(tsEl);
+        }
         historyList.appendChild(item);
       });
     }
