@@ -91,6 +91,30 @@ nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_inp
 - 再送・削除が可能
 - 同じテキストを送信・取得した場合は既存エントリを削除して末尾に移動し、連番を更新
 
+## サーバー履歴の保存先
+
+環境変数 `DB_HOST` の設定値によって、サーバー共有履歴の保存先が切り替わります。
+
+| `DB_HOST` | 保存先 |
+|---|---|
+| 未設定（デフォルト） | `history_server.json`（ローカルファイル） |
+| ホスト名またはIPアドレスを設定 | MySQL |
+
+MySQLを使用する場合は以下の環境変数を設定してサーバーを起動してください。
+
+| 環境変数 | デフォルト値 | 説明 |
+|---|---|---|
+| `DB_HOST` | （未設定） | MySQLのホスト名またはIPアドレス |
+| `DB_PORT` | `3306` | MySQLのポート番号 |
+| `DB_NAME` | `voice_input` | データベース名 |
+| `DB_USER` | `voice_input` | ユーザー名 |
+| `DB_PASSWORD` | `voice_input_pass` | パスワード |
+
+```bash
+export DB_HOST=localhost
+nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_input/server.log 2>&1 &
+```
+
 ## 停止
 
 手動で停止する場合（PIDファイルを使用してserver.pyのみ停止）:
@@ -191,7 +215,27 @@ http://192.168.x.x:5000/cert
 
 ## 制限事項
 
+### サーバー起動環境によるクリップボード制限
+
+| 環境 | クリップボード書き込み (`/send`) | クリップボード読み取り (`/clipboard`) |
+|---|---|---|
+| Windowsネイティブ | ✅ 動作する | ✅ 動作する |
+| WSL2 | ⚠️ `clip.exe` がPATHに存在する場合のみ動作 | ⚠️ `powershell.exe` がPATHに存在する場合のみ動作 |
+| Dockerコンテナ | ❌ 動作しない | ❌ 動作しない |
+
+#### Dockerコンテナで動作しない理由
+
+サーバーはコンテナ内の隔離されたLinux環境で動作するため、ホストOS（Windows）のクリップボードにアクセスする手段がありません。
+
+| 手段 | 結果 | 理由 |
+|---|---|---|
+| `clip.exe` / `powershell.exe` | ❌ 使用不可 | WindowsのCLIツールはコンテナ内に存在しない |
+| `xclip` | ❌ 使用不可 | GUIディスプレイ（`DISPLAY`環境変数）がないため動作しない |
+| `pyperclip` | ❌ 使用不可 | 上記ツールへの依存のため同様に失敗する |
+
 ### スマホクリップボードの自動取得
+
+voice_input 以外のアプリ（ブラウザでURLをコピー、など）でコピーしたテキストを、voice_input に切り替えた際に自動で取得する機能です。
 
 | 環境 | 動作 | 理由 |
 |---|---|---|

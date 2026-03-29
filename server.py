@@ -9,14 +9,115 @@ import json
 import atexit
 import socket
 import threading
+import subprocess
 import pyperclip
 from flask import Flask, request, jsonify, render_template_string
+
+try:
+    import pymysql
+    import pymysql.cursors
+    _PYMYSQL_AVAILABLE = True
+except ImportError:
+    _PYMYSQL_AVAILABLE = False
 
 app = Flask(__name__)
 
 PID_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'server.pid')
 HISTORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'history_server.json')
 HISTORY_MAX = 1000
+
+# MySQL設定（環境変数）
+DB_HOST = os.environ.get('DB_HOST', '')
+DB_PORT = int(os.environ.get('DB_PORT', '3306'))
+DB_NAME = os.environ.get('DB_NAME', 'voice_input')
+DB_USER = os.environ.get('DB_USER', 'voice_input')
+DB_PASSWORD = os.environ.get('DB_PASSWORD', 'voice_input_pass')
+
+
+def _use_mysql():
+    """DB_HOSTが設定されている場合はMySQL使用"""
+    return bool(DB_HOST) and _PYMYSQL_AVAILABLE
+
+
+def _get_db_conn():
+    """MySQL接続を返す（テーブル初期化込み）"""
+    conn = pymysql.connect(
+        host=DB_HOST, port=DB_PORT, db=DB_NAME,
+        user=DB_USER, password=DB_PASSWORD,
+        charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor,
+        autocommit=False
+    )
+    with conn.cursor() as cur:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS history (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                text TEXT NOT NULL,
+                ts VARCHAR(30) NOT NULL DEFAULT '',
+                seq INT NOT NULL DEFAULT 0
+            ) CHARACTER SET utf8mb4
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS meta (
+                key_name VARCHAR(50) PRIMARY KEY,
+                value_int INT NOT NULL DEFAULT 0
+            ) CHARACTER SET utf8mb4
+        """)
+        cur.execute("INSERT IGNORE INTO meta (key_name, value_int) VALUES ('seq', -1)")
+    conn.commit()
+    return conn
+
+
+def _db_get_history():
+    """MySQL: 全履歴をリストで返す（古い順）"""
+    conn = _get_db_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT seq, text, ts FROM history ORDER BY id ASC")
+            rows = cur.fetchall()
+        return [{'seq': r['seq'], 'text': r['text'], 'ts': r['ts']} for r in rows]
+    finally:
+        conn.close()
+
+
+def _db_add_history(text, ts):
+    """MySQL: 重複削除→seq採番→INSERT。seqはmeta表で管理"""
+    conn = _get_db_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM history WHERE text = %s", (text,))
+            cur.execute(
+                "UPDATE meta SET value_int = MOD(value_int + 1, 1000) WHERE key_name = 'seq'"
+            )
+            cur.execute("SELECT value_int FROM meta WHERE key_name = 'seq'")
+            row = cur.fetchone()
+            seq = row['value_int']
+            cur.execute(
+                "INSERT INTO history (text, ts, seq) VALUES (%s, %s, %s)",
+                (text, ts, seq)
+            )
+            # HISTORY_MAX超過分を古い順に削除
+            cur.execute("SELECT COUNT(*) AS cnt FROM history")
+            cnt = cur.fetchone()['cnt']
+            if cnt > HISTORY_MAX:
+                cur.execute(
+                    "DELETE FROM history ORDER BY id ASC LIMIT %s",
+                    (cnt - HISTORY_MAX,)
+                )
+        conn.commit()
+        return seq
+    finally:
+        conn.close()
+
+
+def _db_delete_history(text):
+    """MySQL: 指定テキストの履歴を削除"""
+    conn = _get_db_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM history WHERE text = %s", (text,))
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def _load_server_data():
@@ -32,6 +133,63 @@ def _load_server_data():
 def _save_server_data(data):
     with open(HISTORY_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def copy_to_clipboard(text):
+    """クリップボードにコピー（Docker/WSL2環境対応）"""
+    # pyperclip (Windowsネイティブ環境で確実)
+    try:
+        pyperclip.copy(text)
+        return
+    except Exception:
+        pass
+    # clip.exe (WSL2)
+    try:
+        subprocess.run(['clip.exe'], input=text.encode('utf-16'), check=True)
+        return
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        pass
+    # xclip (Linux)
+    try:
+        subprocess.run(['xclip', '-selection', 'clipboard'], input=text.encode('utf-8'), check=True)
+        return
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        pass
+    raise RuntimeError('クリップボードへの書き込みに失敗しました')
+
+
+def paste_from_clipboard():
+    """クリップボードから取得（Docker/WSL2環境対応）"""
+    # powershell.exe Get-Clipboard (Windows / WSL2)
+    try:
+        result = subprocess.run(
+            ['powershell.exe', '-NoProfile', '-Command',
+             '[Console]::OutputEncoding=[Text.Encoding]::UTF8;'
+             'try { $t = Get-Clipboard -Raw; if ($t) { $t } } catch { }'],
+            capture_output=True, timeout=3
+        )
+        if result.returncode == 0:
+            text = result.stdout.decode('utf-8', errors='replace').rstrip('\r\n')
+            if text:
+                return text
+    except (FileNotFoundError, subprocess.TimeoutExpired, subprocess.CalledProcessError):
+        pass
+    # xclip (Linux)
+    try:
+        result = subprocess.run(
+            ['xclip', '-selection', 'clipboard', '-o'],
+            capture_output=True, timeout=3
+        )
+        if result.returncode == 0:
+            return result.stdout.decode('utf-8', errors='replace')
+    except (FileNotFoundError, subprocess.TimeoutExpired, subprocess.CalledProcessError):
+        pass
+    # pyperclip (Windowsネイティブ環境のフォールバック)
+    try:
+        return pyperclip.paste()
+    except Exception:
+        pass
+    raise RuntimeError('クリップボードへの読み取りに失敗しました')
 
 def _write_pid():
     with open(PID_FILE, 'w') as f:
@@ -1138,9 +1296,13 @@ def send():
     text = data['text']
     if not text or not text.strip():
         return jsonify({'status': 'error', 'message': '空のテキストです'}), 400
-    pyperclip.copy(text)
+    try:
+        copy_to_clipboard(text)
+    except RuntimeError as e:
+        print(f"[受信・クリップボード書込失敗] {text} / {e}")
+        return jsonify({'status': 'ok', 'clipboard': False})
     print(f"[受信] {text}")
-    return jsonify({'status': 'ok'})
+    return jsonify({'status': 'ok', 'clipboard': True})
 
 
 @app.route('/cert', methods=['GET'])
@@ -1154,7 +1316,11 @@ def cert():
 
 @app.route('/clipboard', methods=['GET'])
 def clipboard():
-    text = pyperclip.paste()
+    try:
+        text = paste_from_clipboard()
+    except RuntimeError as e:
+        print(f"[クリップボード取得失敗] {e}")
+        return jsonify({'status': 'error', 'message': 'クリップボードへのアクセスができません'}), 200
     if not text:
         return jsonify({'status': 'error', 'message': 'クリップボードが空です'}), 200
     print(f"[クリップボード送信] {text[:50]}")
@@ -1163,7 +1329,11 @@ def clipboard():
 
 @app.route('/history', methods=['GET'])
 def get_history():
-    return jsonify({'status': 'ok', 'history': _load_server_data()['history']})
+    if _use_mysql():
+        history = _db_get_history()
+    else:
+        history = _load_server_data()['history']
+    return jsonify({'status': 'ok', 'history': history})
 
 
 @app.route('/history/add', methods=['POST'])
@@ -1172,14 +1342,18 @@ def add_history():
     text = req.get('text', '').strip()
     if not text:
         return jsonify({'status': 'error', 'message': 'テキストがありません'}), 400
-    data = _load_server_data()
-    data['history'] = [e for e in data['history'] if e.get('text') != text]
-    seq = (data['seq'] + 1) % 1000
-    data['seq'] = seq
-    data['history'].insert(0, {'seq': seq, 'text': text, 'ts': req.get('ts', '')})
-    if len(data['history']) > HISTORY_MAX:
-        data['history'] = data['history'][:HISTORY_MAX]
-    _save_server_data(data)
+    ts = req.get('ts', '')
+    if _use_mysql():
+        seq = _db_add_history(text, ts)
+    else:
+        data = _load_server_data()
+        data['history'] = [e for e in data['history'] if e.get('text') != text]
+        seq = (data['seq'] + 1) % 1000
+        data['seq'] = seq
+        data['history'].insert(0, {'seq': seq, 'text': text, 'ts': ts})
+        if len(data['history']) > HISTORY_MAX:
+            data['history'] = data['history'][:HISTORY_MAX]
+        _save_server_data(data)
     return jsonify({'status': 'ok', 'seq': seq})
 
 
@@ -1187,9 +1361,12 @@ def add_history():
 def delete_history():
     req = request.get_json(silent=True) or {}
     text = req.get('text', '')
-    data = _load_server_data()
-    data['history'] = [e for e in data['history'] if e.get('text') != text]
-    _save_server_data(data)
+    if _use_mysql():
+        _db_delete_history(text)
+    else:
+        data = _load_server_data()
+        data['history'] = [e for e in data['history'] if e.get('text') != text]
+        _save_server_data(data)
     return jsonify({'status': 'ok'})
 
 
