@@ -72,7 +72,7 @@ def _db_get_history():
     conn = _get_db_conn()
     try:
         with conn.cursor() as cur:
-            cur.execute("SELECT seq, text, ts FROM history ORDER BY id ASC")
+            cur.execute("SELECT seq, text, ts FROM history ORDER BY id DESC")
             rows = cur.fetchall()
         return [{'seq': r['seq'], 'text': r['text'], 'ts': r['ts']} for r in rows]
     finally:

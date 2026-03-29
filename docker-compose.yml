@@ -1,11 +1,14 @@
 services:
   mysql:
     image: mysql:8
+    command: --mysql-native-password=ON
     environment:
       MYSQL_ROOT_PASSWORD: voice_input_root
       MYSQL_DATABASE: voice_input
       MYSQL_USER: voice_input
       MYSQL_PASSWORD: voice_input_pass
+    ports:
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     restart: unless-stopped
