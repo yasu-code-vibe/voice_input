@@ -5,6 +5,7 @@
 """
 
 import os
+import json
 import atexit
 import socket
 import threading
@@ -14,6 +15,23 @@ from flask import Flask, request, jsonify, render_template_string
 app = Flask(__name__)
 
 PID_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'server.pid')
+HISTORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'history_server.json')
+HISTORY_MAX = 1000
+
+
+def _load_server_data():
+    if os.path.exists(HISTORY_FILE):
+        with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if isinstance(data, list):  # 旧フォーマット移行
+                return {'seq': -1, 'history': data}
+            return data
+    return {'seq': -1, 'history': []}
+
+
+def _save_server_data(data):
+    with open(HISTORY_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
 def _write_pid():
     with open(PID_FILE, 'w') as f:
@@ -259,6 +277,8 @@ HTML = """<!DOCTYPE html>
       cursor: pointer;
     }
     .resend-btn:active { opacity: 0.7; }
+    .seq-local { color: #89b4fa; font-weight: bold; }
+    .seq-server { color: #ffff00; font-weight: bold; }
     #confirm-overlay {
       display: none;
       position: fixed;
@@ -450,11 +470,19 @@ HTML = """<!DOCTYPE html>
 
       <div class="settings-section">
         <div class="settings-label">履歴</div>
+        <div class="settings-row-title">保存場所</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;">ローカル：この端末のみ保存。サーバー：全デバイスで共有。</div>
+        <div class="seg-ctrl" id="history-storage-ctrl">
+          <button class="seg-btn" data-val="local">ローカル</button>
+          <button class="seg-btn" data-val="server">サーバー</button>
+        </div>
+        <div style="margin-top: 16px;">
         <div class="settings-row-title">削除時の確認ダイアログ</div>
         <div class="settings-row-sub" style="margin: 4px 0 10px;">🗑 ボタンをタップした際に確認ダイアログを表示します。</div>
         <div class="seg-ctrl" id="del-confirm-ctrl">
           <button class="seg-btn" data-val="on">ON</button>
           <button class="seg-btn" data-val="off">OFF</button>
+        </div>
         </div>
       </div>
 
@@ -661,6 +689,9 @@ HTML = """<!DOCTYPE html>
     const HISTORY_KEY = 'voice_input_history';
     const HISTORY_SEQ_KEY = 'voice_input_seq';
     const HISTORY_MAX = 1000;
+    const HISTORY_STORAGE_KEY = 'history_storage';
+
+    function isServerMode() { return localStorage.getItem(HISTORY_STORAGE_KEY) === 'server'; }
 
     function loadHistory() {
       try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
@@ -677,12 +708,34 @@ HTML = """<!DOCTYPE html>
       return seq;
     }
 
-    function addHistory(text) {
-      const history = loadHistory().filter(t => t.text !== text);
-      history.unshift({ seq: nextSeq(), text, ts: new Date().toISOString() });
-      if (history.length > HISTORY_MAX) history.pop();
-      saveHistory(history);
-      renderHistory();
+    async function refreshAndRender() {
+      if (isServerMode()) {
+        try {
+          const res = await fetch('/history');
+          const data = await res.json();
+          renderHistory(data.history || []);
+        } catch { renderHistory([]); }
+      } else {
+        renderHistory(loadHistory());
+      }
+    }
+
+    async function addHistory(text) {
+      if (isServerMode()) {
+        const ts = new Date().toISOString();
+        await fetch('/history/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, ts })
+        });
+        await refreshAndRender();
+      } else {
+        const history = loadHistory().filter(t => t.text !== text);
+        history.unshift({ seq: nextSeq(), text, ts: new Date().toISOString() });
+        if (history.length > HISTORY_MAX) history.pop();
+        saveHistory(history);
+        renderHistory(loadHistory());
+      }
       historyList.scrollTop = historyList.scrollHeight;
     }
 
@@ -695,8 +748,7 @@ HTML = """<!DOCTYPE html>
 
     const openTsSeqs = new Set();
 
-    function renderHistory() {
-      const history = loadHistory();
+    function renderHistory(history) {
       historyList.innerHTML = '';
       history.slice().reverse().forEach(entry => {
         const text = typeof entry === 'string' ? entry : entry.text;
@@ -706,7 +758,15 @@ HTML = """<!DOCTYPE html>
         item.className = 'history-item';
         const span = document.createElement('span');
         span.className = 'history-text';
-        span.textContent = (seq ? `[${seq}] ` : '') + text;
+        if (seq) {
+          const seqSpan = document.createElement('span');
+          seqSpan.className = isServerMode() ? 'seq-server' : 'seq-local';
+          seqSpan.textContent = `[${seq}] `;
+          span.appendChild(seqSpan);
+          span.appendChild(document.createTextNode(text));
+        } else {
+          span.textContent = text;
+        }
         item.appendChild(span);
         const resendBtn = document.createElement('button');
         resendBtn.className = 'resend-btn';
@@ -726,9 +786,18 @@ HTML = """<!DOCTYPE html>
             if (!ok) return;
           }
           openTsSeqs.delete(seq);
-          const history = loadHistory().filter(e => (typeof e === 'string' ? e : e.text) !== text);
-          saveHistory(history);
-          renderHistory();
+          if (isServerMode()) {
+            await fetch('/history/delete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ text })
+            });
+            await refreshAndRender();
+          } else {
+            const history = loadHistory().filter(e => (typeof e === 'string' ? e : e.text) !== text);
+            saveHistory(history);
+            renderHistory(loadHistory());
+          }
         });
         item.appendChild(resendBtn);
         item.appendChild(delBtn);
@@ -752,7 +821,7 @@ HTML = """<!DOCTYPE html>
       });
     }
 
-    renderHistory();
+    refreshAndRender();
     setTimeout(() => { historyList.scrollTop = historyList.scrollHeight; }, 50);
 
     let recognition = null;
@@ -920,6 +989,23 @@ HTML = """<!DOCTYPE html>
       if (confirmResolve) confirmResolve(false);
     });
 
+    const historyStorageCtrl = document.getElementById('history-storage-ctrl');
+    const pcClipBtn = document.getElementById('pc-clip-btn');
+    function updateHistoryStorageCtrl() {
+      const val = localStorage.getItem(HISTORY_STORAGE_KEY) || 'local';
+      historyStorageCtrl.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.val === val));
+      pcClipBtn.textContent = val === 'server' ? '📥 サーバークリップボードを取得' : '📥 PCクリップボードを取得';
+    }
+    historyStorageCtrl.querySelectorAll('.seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        localStorage.setItem(HISTORY_STORAGE_KEY, btn.dataset.val);
+        updateHistoryStorageCtrl();
+        openTsSeqs.clear();
+        refreshAndRender().then(() => { historyList.scrollTop = historyList.scrollHeight; });
+      });
+    });
+    updateHistoryStorageCtrl();
+
     const DEL_CONFIRM_KEY = 'del_confirm';
     const delConfirmCtrl = document.getElementById('del-confirm-ctrl');
     function isDelConfirmEnabled() { return localStorage.getItem(DEL_CONFIRM_KEY) === 'on'; }
@@ -1058,6 +1144,38 @@ def clipboard():
         return jsonify({'status': 'error', 'message': 'クリップボードが空です'}), 200
     print(f"[クリップボード送信] {text[:50]}")
     return jsonify({'status': 'ok', 'text': text})
+
+
+@app.route('/history', methods=['GET'])
+def get_history():
+    return jsonify({'status': 'ok', 'history': _load_server_data()['history']})
+
+
+@app.route('/history/add', methods=['POST'])
+def add_history():
+    req = request.get_json(silent=True) or {}
+    text = req.get('text', '').strip()
+    if not text:
+        return jsonify({'status': 'error', 'message': 'テキストがありません'}), 400
+    data = _load_server_data()
+    data['history'] = [e for e in data['history'] if e.get('text') != text]
+    seq = (data['seq'] + 1) % 1000
+    data['seq'] = seq
+    data['history'].insert(0, {'seq': seq, 'text': text, 'ts': req.get('ts', '')})
+    if len(data['history']) > HISTORY_MAX:
+        data['history'] = data['history'][:HISTORY_MAX]
+    _save_server_data(data)
+    return jsonify({'status': 'ok', 'seq': seq})
+
+
+@app.route('/history/delete', methods=['POST'])
+def delete_history():
+    req = request.get_json(silent=True) or {}
+    text = req.get('text', '')
+    data = _load_server_data()
+    data['history'] = [e for e in data['history'] if e.get('text') != text]
+    _save_server_data(data)
+    return jsonify({'status': 'ok'})
 
 
 def get_local_ip():
