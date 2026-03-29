@@ -86,6 +86,10 @@ HTML = """<!DOCTYPE html>
       background: #1e1e2e;
       transform: translateX(100%);
       transition: transform 0.3s ease;
+      overflow: hidden;
+    }
+    #settings-body {
+      flex: 1;
       overflow-y: auto;
     }
     #settings-screen.slide-in {
@@ -422,6 +426,7 @@ HTML = """<!DOCTYPE html>
         <div class="title-spacer"></div>
       </div>
 
+      <div id="settings-body">
       <div class="settings-section">
         <div class="settings-label">入力</div>
         <div class="settings-row-title">行末の付加文字</div>
@@ -467,6 +472,7 @@ HTML = """<!DOCTYPE html>
           <div class="version-text">voice_input v1.0.0</div>
         </div>
       </div>
+      </div><!-- /#settings-body -->
     </div>
 
   </div>
