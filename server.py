@@ -796,15 +796,34 @@ HTML = """<!DOCTYPE html>
     function updateClipboardMonitorBtn() {
       if (clipboardMonitorEnabled) {
         clipboardMonitorBtn.textContent = '無効にする';
-        clipboardMonitorBtn.style.background = '#f38ba8';
+        clipboardMonitorBtn.style.background = '#89b4fa';
+        clipboardMonitorBtn.style.color = '#1e1e2e';
       } else {
         clipboardMonitorBtn.textContent = '有効にする';
-        clipboardMonitorBtn.style.background = '#a6e3a1';
+        clipboardMonitorBtn.style.background = '#45475a';
+        clipboardMonitorBtn.style.color = '#cdd6f4';
       }
     }
     updateClipboardMonitorBtn();
 
+    // iOS では Clipboard API が制限されているためボタンを無効化
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      clipboardMonitorBtn.disabled = true;
+      clipboardMonitorBtn.textContent = '非対応（iOS制限）';
+      clipboardMonitorBtn.style.background = '#45475a';
+      clipboardMonitorBtn.style.color = '#6c7086';
+    }
+
+    // iOS では Clipboard API が制限されているためボタンを無効化
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      clipboardMonitorBtn.disabled = true;
+      clipboardMonitorBtn.textContent = '非対応（iOS制限）';
+      clipboardMonitorBtn.style.background = '#45475a';
+      clipboardMonitorBtn.style.color = '#6c7086';
+    }
+
     clipboardMonitorBtn.addEventListener('click', async () => {
+      if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) return;
       if (clipboardMonitorEnabled) {
         clipboardMonitorEnabled = false;
         localStorage.removeItem(CLIPBOARD_MONITOR_KEY);
