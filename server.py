@@ -693,6 +693,8 @@ HTML = """<!DOCTYPE html>
       return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
     }
 
+    const openTsSeqs = new Set();
+
     function renderHistory() {
       const history = loadHistory();
       historyList.innerHTML = '';
@@ -723,6 +725,7 @@ HTML = """<!DOCTYPE html>
             const ok = await showConfirm('この履歴を削除しますか？');
             if (!ok) return;
           }
+          openTsSeqs.delete(seq);
           const history = loadHistory().filter(e => (typeof e === 'string' ? e : e.text) !== text);
           saveHistory(history);
           renderHistory();
@@ -733,10 +736,14 @@ HTML = """<!DOCTYPE html>
           const tsEl = document.createElement('span');
           tsEl.className = 'history-ts';
           tsEl.textContent = formatTs(ts);
+          if (openTsSeqs.has(seq)) tsEl.style.display = 'block';
           span.addEventListener('click', () => {
             tsEl.style.display = tsEl.style.display === 'block' ? 'none' : 'block';
             if (tsEl.style.display === 'block') {
+              openTsSeqs.add(seq);
               tsEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            } else {
+              openTsSeqs.delete(seq);
             }
           });
           item.appendChild(tsEl);
@@ -848,9 +855,14 @@ HTML = """<!DOCTYPE html>
           throw new Error(data.message || '不明なエラー');
         }
       } catch (e) {
-        resultEl.textContent = '❌ 送信失敗: ' + e.message;
+        if (!isResend) addHistory(text);
+        resultEl.textContent = '⚠️ バックエンドがオフラインのため、ローカルに保存しました。';
         resultEl.classList.add('error');
         sendBtn.disabled = false;
+        setTimeout(() => {
+          const last = historyList.lastElementChild;
+          if (last) last.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }, 50);
       }
     }
 
