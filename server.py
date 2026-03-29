@@ -169,6 +169,8 @@ HTML = """<!DOCTYPE html>
       padding: 0;
       gap: 8px;
     }
+    .settings-section .seg-ctrl { justify-content: flex-end; }
+    .settings-section > .btn { display: block; margin-left: auto; }
     .seg-ctrl button {
       background: #45475a;
       border: none;
