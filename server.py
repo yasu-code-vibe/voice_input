@@ -395,6 +395,13 @@ HTML = """<!DOCTYPE html>
       </div>
 
       <div class="settings-section">
+        <div class="settings-label">クリップボード</div>
+        <div class="settings-row-title">クリップボード自動取得</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;">他のアプリでコピーしてブラウザに戻ると自動でテキスト表示領域に貼り付けます。Android Chrome のみ対応。</div>
+        <button class="btn" id="clipboard-monitor-btn" style="color: #1e1e2e;">有効にする</button>
+      </div>
+
+      <div class="settings-section">
         <div class="settings-label">アプリ情報</div>
         <div class="settings-row">
           <div class="settings-row-title">バージョン</div>
@@ -778,6 +785,72 @@ HTML = """<!DOCTYPE html>
       resultEl.textContent = '';
       statusEl.textContent = 'マイクボタンを押して話してください';
       statusEl.classList.remove('error');
+    });
+
+    // --- クリップボード監視 ---
+    const CLIPBOARD_MONITOR_KEY = 'clipboard_monitor';
+    let clipboardMonitorEnabled = localStorage.getItem(CLIPBOARD_MONITOR_KEY) === '1';
+    let lastClipboardText = '';
+    const clipboardMonitorBtn = document.getElementById('clipboard-monitor-btn');
+
+    function updateClipboardMonitorBtn() {
+      if (clipboardMonitorEnabled) {
+        clipboardMonitorBtn.textContent = '無効にする';
+        clipboardMonitorBtn.style.background = '#f38ba8';
+      } else {
+        clipboardMonitorBtn.textContent = '有効にする';
+        clipboardMonitorBtn.style.background = '#a6e3a1';
+      }
+    }
+    updateClipboardMonitorBtn();
+
+    clipboardMonitorBtn.addEventListener('click', async () => {
+      if (clipboardMonitorEnabled) {
+        clipboardMonitorEnabled = false;
+        localStorage.removeItem(CLIPBOARD_MONITOR_KEY);
+        updateClipboardMonitorBtn();
+      } else {
+        if (!navigator.clipboard || !navigator.clipboard.readText) {
+          alert('このブラウザはクリップボード監視に対応していません。');
+          return;
+        }
+        try {
+          await navigator.clipboard.readText(); // 許可ダイアログを表示
+          clipboardMonitorEnabled = true;
+          localStorage.setItem(CLIPBOARD_MONITOR_KEY, '1');
+          updateClipboardMonitorBtn();
+        } catch (e) {
+          alert('クリップボードの許可が得られませんでした。ブラウザの設定を確認してください。');
+        }
+      }
+    });
+
+    async function tryReadClipboard() {
+      if (!clipboardMonitorEnabled) return;
+      if (!navigator.clipboard || !navigator.clipboard.readText) return;
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text && text !== lastClipboardText) {
+          lastClipboardText = text;
+          transcript.textContent = text;
+          finalText = text;
+          sendBtn.disabled = false;
+          statusEl.textContent = '📋 クリップボードからテキストを取得しました';
+          statusEl.classList.remove('error');
+        }
+      } catch (e) {
+        // 読み取り失敗（フォーカス不足・一時的な権限エラー）- 監視は維持する
+      }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible') return;
+      // フォーカスが安定するまで少し待ってから読み取る
+      setTimeout(tryReadClipboard, 500);
+    });
+
+    window.addEventListener('focus', () => {
+      setTimeout(tryReadClipboard, 300);
     });
   </script>
 </body>

@@ -68,6 +68,13 @@ nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_inp
 | **スナップモード**（デフォルト） | マイクボタンを左右にドラッグすると左右にスナップ移動 |
 | **フローティングモード** | マイクボタンを画面上の好きな位置にドラッグして自由移動 |
 
+### スマホクリップボードの自動取得
+
+他のアプリでテキストをコピーしてからブラウザに戻ると、クリップボードの内容が自動的にテキスト表示領域に表示されます。
+
+- コピー内容が前回と変わっている場合のみ表示されます
+- **対応環境**: Android Chrome（動作確認済み）
+
 ### PCクリップボードをスマホへ取得
 
 「📥 PCクリップボードを取得」ボタンをタップすると、PCのクリップボード内容が履歴に追加されます。
@@ -181,3 +188,15 @@ http://192.168.x.x:5000/cert
 - Web Speech APIはAndroid Chrome・iPhone Safari・PC版Chromeで動作します
 - iPhoneはSafariまたはChromeを使用してください
 - 履歴はブラウザのlocalStorageに保存されるため、端末・URLが変わるとリセットされます
+
+## 制限事項
+
+### スマホクリップボードの自動取得
+
+| 環境 | 動作 | 理由 |
+|---|---|---|
+| Android Chrome | ✅ 動作する | Clipboard API対応 |
+| iPhone Safari | ❌ 動作しない | iOSのセキュリティ制限によりユーザー操作なしのClipboard API読み取りが不可 |
+| iPhone Chrome | ❌ 動作しない | 同上 |
+
+iPhoneでPCのクリップボード内容を取得したい場合は「📥 PCクリップボードを取得」ボタンを使用してください。
