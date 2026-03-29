@@ -255,6 +255,43 @@ HTML = """<!DOCTYPE html>
       cursor: pointer;
     }
     .resend-btn:active { opacity: 0.7; }
+    #confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    #confirm-overlay.show { display: flex; }
+    #confirm-dialog {
+      background: #313244;
+      border-radius: 12px;
+      padding: 24px 20px 16px;
+      width: min(300px, 85vw);
+      text-align: center;
+    }
+    #confirm-dialog p {
+      margin: 0 0 20px;
+      color: #cdd6f4;
+      font-size: 0.95rem;
+    }
+    #confirm-dialog .confirm-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    #confirm-dialog .confirm-btns button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    #confirm-ok  { background: #f38ba8; color: #1e1e2e; }
+    #confirm-cancel { background: #45475a; color: #cdd6f4; }
     #bottom-area {
       width: 100%;
       display: flex;
@@ -407,6 +444,16 @@ HTML = """<!DOCTYPE html>
       </div>
 
       <div class="settings-section">
+        <div class="settings-label">履歴</div>
+        <div class="settings-row-title">削除時の確認ダイアログ</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;">🗑 ボタンをタップした際に確認ダイアログを表示します。</div>
+        <div class="seg-ctrl" id="del-confirm-ctrl">
+          <button class="seg-btn" data-val="on">ON</button>
+          <button class="seg-btn" data-val="off">OFF</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
         <div class="settings-label">クリップボード</div>
         <div class="settings-row-title">クリップボード自動取得</div>
         <div class="settings-row-sub" style="margin: 4px 0 10px;">他のアプリでコピーしてブラウザに戻ると自動でテキスト表示領域に貼り付けます。Android Chrome のみ対応。</div>
@@ -422,6 +469,16 @@ HTML = """<!DOCTYPE html>
       </div>
     </div>
 
+  </div>
+
+  <div id="confirm-overlay">
+    <div id="confirm-dialog">
+      <p id="confirm-msg"></p>
+      <div class="confirm-btns">
+        <button id="confirm-cancel">キャンセル</button>
+        <button id="confirm-ok">削除</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -655,7 +712,11 @@ HTML = """<!DOCTYPE html>
         const delBtn = document.createElement('button');
         delBtn.className = 'resend-btn';
         delBtn.textContent = '🗑';
-        delBtn.addEventListener('click', () => {
+        delBtn.addEventListener('click', async () => {
+          if (isDelConfirmEnabled()) {
+            const ok = await showConfirm('この履歴を削除しますか？');
+            if (!ok) return;
+          }
           const history = loadHistory().filter(e => (typeof e === 'string' ? e : e.text) !== text);
           saveHistory(history);
           renderHistory();
@@ -820,6 +881,42 @@ HTML = """<!DOCTYPE html>
     });
 
     // --- クリップボード監視 ---
+    const confirmOverlay = document.getElementById('confirm-overlay');
+    const confirmMsg = document.getElementById('confirm-msg');
+    const confirmOkBtn = document.getElementById('confirm-ok');
+    const confirmCancelBtn = document.getElementById('confirm-cancel');
+    let confirmResolve = null;
+    function showConfirm(msg) {
+      return new Promise(resolve => {
+        confirmMsg.textContent = msg;
+        confirmOverlay.classList.add('show');
+        confirmResolve = resolve;
+      });
+    }
+    confirmOkBtn.addEventListener('click', () => {
+      confirmOverlay.classList.remove('show');
+      if (confirmResolve) confirmResolve(true);
+    });
+    confirmCancelBtn.addEventListener('click', () => {
+      confirmOverlay.classList.remove('show');
+      if (confirmResolve) confirmResolve(false);
+    });
+
+    const DEL_CONFIRM_KEY = 'del_confirm';
+    const delConfirmCtrl = document.getElementById('del-confirm-ctrl');
+    function isDelConfirmEnabled() { return localStorage.getItem(DEL_CONFIRM_KEY) === 'on'; }
+    function updateDelConfirmCtrl() {
+      const val = localStorage.getItem(DEL_CONFIRM_KEY) || 'off';
+      delConfirmCtrl.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.val === val));
+    }
+    delConfirmCtrl.querySelectorAll('.seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        localStorage.setItem(DEL_CONFIRM_KEY, btn.dataset.val);
+        updateDelConfirmCtrl();
+      });
+    });
+    updateDelConfirmCtrl();
+
     const CLIPBOARD_MONITOR_KEY = 'clipboard_monitor';
     let clipboardMonitorEnabled = localStorage.getItem(CLIPBOARD_MONITOR_KEY) === '1';
     let lastClipboardText = '';
