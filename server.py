@@ -720,15 +720,30 @@ HTML = """<!DOCTYPE html>
       }
     }
 
+    function switchToLocal() {
+      localStorage.setItem(HISTORY_STORAGE_KEY, 'local');
+      updateHistoryStorageCtrl();
+    }
+
     async function addHistory(text) {
       if (isServerMode()) {
         const ts = new Date().toISOString();
-        await fetch('/history/add', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, ts })
-        });
-        await refreshAndRender();
+        try {
+          const res = await fetch('/history/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, ts })
+          });
+          if (!res.ok) throw new Error();
+          await refreshAndRender();
+        } catch {
+          switchToLocal();
+          const history = loadHistory().filter(t => t.text !== text);
+          history.unshift({ seq: nextSeq(), text, ts });
+          if (history.length > HISTORY_MAX) history.pop();
+          saveHistory(history);
+          renderHistory(loadHistory());
+        }
       } else {
         const history = loadHistory().filter(t => t.text !== text);
         history.unshift({ seq: nextSeq(), text, ts: new Date().toISOString() });
