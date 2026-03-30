@@ -697,13 +697,16 @@ HTML = """<!DOCTYPE html>
     const settingsScreen = document.getElementById('settings-screen');
 
     const settingsBtn = document.getElementById('settings-btn');
+    let settingsOpen = false;
     settingsBtn.addEventListener('click', () => {
+      settingsOpen = true;
       mainScreen.classList.add('slide-out');
       settingsScreen.classList.add('slide-in');
       settingsBtn.style.visibility = 'hidden';
       micBtn.style.display = 'none';
     });
     document.getElementById('settings-back-btn').addEventListener('click', () => {
+      settingsOpen = false;
       mainScreen.classList.remove('slide-out');
       settingsScreen.classList.remove('slide-in');
       settingsBtn.style.visibility = 'visible';
@@ -778,6 +781,7 @@ HTML = """<!DOCTYPE html>
       localStorage.setItem(MIC_MODE_KEY, 'snap');
       micBtn.classList.remove('floating');
       micBtn.style.cssText = '';
+      if (settingsOpen) micBtn.style.display = 'none';
       micPlaceholder.classList.remove('visible');
       mainGroup.insertBefore(micBtn, mainGroup.firstChild);
       const side = localStorage.getItem(MIC_SNAP_KEY) || 'left';
@@ -790,6 +794,7 @@ HTML = """<!DOCTYPE html>
       micBtn.classList.add('floating');
       micPlaceholder.classList.add('visible');
       document.body.appendChild(micBtn);
+      if (settingsOpen) micBtn.style.display = 'none';
       const saved = JSON.parse(localStorage.getItem(MIC_POS_KEY) || 'null');
       if (saved) {
         applyFloatPos(saved.x, saved.y);
