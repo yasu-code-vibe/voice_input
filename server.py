@@ -644,6 +644,13 @@ HTML = """<!DOCTYPE html>
           <button class="seg-btn" data-val="off">OFF</button>
         </div>
         </div>
+        <div style="margin-top: 16px;">
+        <div class="settings-row-title">ローカル履歴をクリア</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;">このデバイスに保存されている履歴をすべて削除します。</div>
+        <div style="display:flex; justify-content:flex-end;">
+          <button class="btn" id="clear-local-history-btn" style="background:#f38ba8; color:#1e1e2e;">🗑 ローカル履歴をクリア</button>
+        </div>
+        </div>
       </div>
 
       <div class="settings-section" id="clipboard-auto-section">
@@ -727,6 +734,7 @@ HTML = """<!DOCTYPE html>
       settingsScreen.classList.remove('slide-in');
       settingsBtn.style.visibility = 'visible';
       micBtn.style.display = '';
+      refreshAndRender();
     });
 
     // --- 行末付加設定 ---
@@ -946,6 +954,13 @@ HTML = """<!DOCTYPE html>
 
     function renderHistory(history) {
       historyList.innerHTML = '';
+      if (history.length === 0) {
+        const empty = document.createElement('div');
+        empty.style.cssText = 'text-align:center; color:#6c7086; padding:24px 0; font-size:0.9rem;';
+        empty.textContent = '履歴はありません';
+        historyList.appendChild(empty);
+        return;
+      }
       history.slice().reverse().forEach(entry => {
         const text = typeof entry === 'string' ? entry : entry.text;
         const seq  = typeof entry === 'string' ? '' : String(entry.seq).padStart(3, '0');
@@ -1216,6 +1231,15 @@ HTML = """<!DOCTYPE html>
       });
     });
     updateDelConfirmCtrl();
+
+    // --- ローカル履歴クリア ---
+    document.getElementById('clear-local-history-btn').addEventListener('click', async () => {
+      const ok = await showConfirm('ローカル履歴をすべて削除しますか？');
+      if (!ok) return;
+      localStorage.removeItem(HISTORY_KEY);
+      localStorage.removeItem(HISTORY_SEQ_KEY);
+      if (!isServerMode()) renderHistory([]);
+    });
 
     const CLIPBOARD_MONITOR_KEY = 'clipboard_monitor';
     let clipboardMonitorEnabled = localStorage.getItem(CLIPBOARD_MONITOR_KEY) === '1';
