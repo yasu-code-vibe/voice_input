@@ -540,6 +540,8 @@ HTML = """<!DOCTYPE html>
       line-height: 1.6;
       white-space: pre-wrap;
       word-break: break-all;
+      color: #cdd6f4;
+      -webkit-text-fill-color: #cdd6f4;
     }
     .btn-col {
       display: flex;
@@ -586,7 +588,7 @@ HTML = """<!DOCTYPE html>
         <div id="main-group">
           <button id="mic-btn" title="音声認識 開始/停止">🎤</button>
           <div id="mic-placeholder"></div>
-          <div id="transcript" placeholder="ここにテキストが表示されます"></div>
+          <div id="transcript" contenteditable="true" placeholder="ここにテキストが表示されます"></div>
           <div class="btn-col">
             <button class="btn" id="send-btn" disabled>📋 送信</button>
             <button class="btn" id="clear-btn">🗑 クリア</button>
@@ -691,6 +693,20 @@ HTML = """<!DOCTYPE html>
     const statusEl = document.getElementById('status');
     const resultEl = document.getElementById('result');
     const historyList = document.getElementById('history-list');
+
+    // --- テキスト領域への入力/ペースト時に送信ボタンを連動 ---
+    transcript.addEventListener('input', () => {
+      sendBtn.disabled = transcript.textContent.trim() === '';
+    });
+
+    // --- ペースト時にHTMLを除去してプレーンテキストのみ挿入 ---
+    transcript.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+      if (!text) return;
+      transcript.textContent = text;
+      sendBtn.disabled = false;
+    });
 
     // --- 設定画面 ---
     const mainScreen     = document.getElementById('main-screen');
@@ -1115,7 +1131,7 @@ HTML = """<!DOCTYPE html>
       }
     }
 
-    sendBtn.addEventListener('click', doSend);
+    sendBtn.addEventListener('click', () => doSend());
 
     document.getElementById('pc-clip-btn').addEventListener('click', async () => {
       try {
