@@ -51,9 +51,9 @@ def _get_db_conn():
         cur.execute("""
             CREATE TABLE IF NOT EXISTS history (
                 id INT AUTO_INCREMENT PRIMARY KEY,
+                seq INT NOT NULL DEFAULT 0,
                 text TEXT NOT NULL,
-                ts VARCHAR(30) NOT NULL DEFAULT '',
-                seq INT NOT NULL DEFAULT 0
+                ts VARCHAR(30) NOT NULL DEFAULT ''
             ) CHARACTER SET utf8mb4
         """)
         cur.execute("""
@@ -92,8 +92,8 @@ def _db_add_history(text, ts):
             row = cur.fetchone()
             seq = row['value_int']
             cur.execute(
-                "INSERT INTO history (text, ts, seq) VALUES (%s, %s, %s)",
-                (text, ts, seq)
+                "INSERT INTO history (seq, text, ts) VALUES (%s, %s, %s)",
+                (seq, text, ts)
             )
             # HISTORY_MAX超過分を古い順に削除
             cur.execute("SELECT COUNT(*) AS cnt FROM history")
