@@ -209,7 +209,7 @@ HTML = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>音声入力</title>
+  <title>音声入力→AI</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -567,7 +567,7 @@ HTML = """<!DOCTYPE html>
 <body>
   <div class="title-bar">
     <div class="title-spacer"></div>
-    <h1>🎤 音声入力 → VS Code</h1>
+    <h1>🎤 音声入力→AI</h1>
     <button id="settings-btn" title="設定">⚙️</button>
   </div>
 
