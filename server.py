@@ -701,11 +701,13 @@ HTML = """<!DOCTYPE html>
       mainScreen.classList.add('slide-out');
       settingsScreen.classList.add('slide-in');
       settingsBtn.style.visibility = 'hidden';
+      micBtn.style.display = 'none';
     });
     document.getElementById('settings-back-btn').addEventListener('click', () => {
       mainScreen.classList.remove('slide-out');
       settingsScreen.classList.remove('slide-in');
       settingsBtn.style.visibility = 'visible';
+      micBtn.style.display = '';
     });
 
     // --- 行末付加設定 ---
