@@ -646,7 +646,7 @@ HTML = """<!DOCTYPE html>
         </div>
       </div>
 
-      <div class="settings-section">
+      <div class="settings-section" id="clipboard-auto-section">
         <div class="settings-label">クリップボード</div>
         <div class="settings-row-title">クリップボード自動取得</div>
         <div class="settings-row-sub" style="margin: 4px 0 10px;">他のアプリでコピーしてブラウザに戻ると自動でテキスト表示領域に貼り付けます。Android Chrome のみ対応。</div>
@@ -1220,6 +1220,12 @@ HTML = """<!DOCTYPE html>
     const CLIPBOARD_MONITOR_KEY = 'clipboard_monitor';
     let clipboardMonitorEnabled = localStorage.getItem(CLIPBOARD_MONITOR_KEY) === '1';
     let lastClipboardText = '';
+    // --- iPhone判定：クリップボード自動取得ブロックを非表示 ---
+    const isIPhone = /iPhone/.test(navigator.userAgent);
+    if (isIPhone) {
+      document.getElementById('clipboard-auto-section').style.display = 'none';
+    }
+
     const clipboardMonitorBtn = document.getElementById('clipboard-monitor-btn');
 
     function updateClipboardMonitorBtn() {
