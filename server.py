@@ -631,10 +631,11 @@ HTML = """<!DOCTYPE html>
       <div class="settings-section">
         <div class="settings-label">履歴</div>
         <div class="settings-row-title">保存場所</div>
-        <div class="settings-row-sub" style="margin: 4px 0 10px;">ローカル：この端末のみ保存。サーバー：全デバイスで共有。</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;">ローカル：この端末のみ保存。サーバ(JSON)：JSONファイルで全デバイス共有。サーバ(DB)：データベースで全デバイス共有。</div>
         <div class="seg-ctrl" id="history-storage-ctrl">
           <button class="seg-btn" data-val="local">ローカル</button>
-          <button class="seg-btn" data-val="server">サーバー</button>
+          <button class="seg-btn" data-val="server-json">サーバ(JSON)</button>
+          <button class="seg-btn" data-val="server-db">サーバ(DB)</button>
         </div>
         <div style="margin-top: 16px;">
         <div class="settings-row-title">削除時の確認ダイアログ</div>
@@ -880,7 +881,13 @@ HTML = """<!DOCTYPE html>
     const HISTORY_MAX = 1000;
     const HISTORY_STORAGE_KEY = 'history_storage';
 
-    function isServerMode() { return localStorage.getItem(HISTORY_STORAGE_KEY) === 'server'; }
+    function isServerMode() {
+      const v = localStorage.getItem(HISTORY_STORAGE_KEY);
+      return v === 'server-json' || v === 'server-db';
+    }
+    function getServerMode() {
+      return localStorage.getItem(HISTORY_STORAGE_KEY) === 'server-db' ? 'db' : 'json';
+    }
 
     function loadHistory() {
       try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
@@ -900,7 +907,7 @@ HTML = """<!DOCTYPE html>
     async function refreshAndRender() {
       if (isServerMode()) {
         try {
-          const res = await fetch('/history');
+          const res = await fetch('/history?mode=' + getServerMode());
           const data = await res.json();
           renderHistory(data.history || []);
         } catch { renderHistory([]); }
@@ -921,7 +928,7 @@ HTML = """<!DOCTYPE html>
           const res = await fetch('/history/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text, ts })
+            body: JSON.stringify({ text, ts, mode: getServerMode() })
           });
           if (!res.ok) throw new Error();
           await refreshAndRender();
@@ -1001,7 +1008,7 @@ HTML = """<!DOCTYPE html>
             await fetch('/history/delete', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ text })
+              body: JSON.stringify({ text, mode: getServerMode() })
             });
             await refreshAndRender();
           } else {
@@ -1200,12 +1207,17 @@ HTML = """<!DOCTYPE html>
       if (confirmResolve) confirmResolve(false);
     });
 
+    // 旧値 'server' をデフォルト 'local' に移行
+    if (localStorage.getItem(HISTORY_STORAGE_KEY) === 'server') {
+      localStorage.setItem(HISTORY_STORAGE_KEY, 'local');
+    }
+
     const historyStorageCtrl = document.getElementById('history-storage-ctrl');
     const pcClipBtn = document.getElementById('pc-clip-btn');
     function updateHistoryStorageCtrl() {
       const val = localStorage.getItem(HISTORY_STORAGE_KEY) || 'local';
       historyStorageCtrl.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.val === val));
-      pcClipBtn.textContent = val === 'server' ? '📥 サーバークリップボードを取得' : '📥 PCクリップボードを取得';
+      pcClipBtn.textContent = isServerMode() ? '📥 サーバークリップボードを取得' : '📥 PCクリップボードを取得';
     }
     historyStorageCtrl.querySelectorAll('.seg-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1382,7 +1394,8 @@ def clipboard():
 
 @app.route('/history', methods=['GET'])
 def get_history():
-    if _use_mysql():
+    mode = request.args.get('mode', 'db' if _use_mysql() else 'json')
+    if mode == 'db':
         history = _db_get_history()
     else:
         history = _load_server_data()['history']
@@ -1396,7 +1409,8 @@ def add_history():
     if not text:
         return jsonify({'status': 'error', 'message': 'テキストがありません'}), 400
     ts = req.get('ts', '')
-    if _use_mysql():
+    mode = req.get('mode', 'db' if _use_mysql() else 'json')
+    if mode == 'db':
         seq = _db_add_history(text, ts)
     else:
         data = _load_server_data()
@@ -1414,7 +1428,8 @@ def add_history():
 def delete_history():
     req = request.get_json(silent=True) or {}
     text = req.get('text', '')
-    if _use_mysql():
+    mode = req.get('mode', 'db' if _use_mysql() else 'json')
+    if mode == 'db':
         _db_delete_history(text)
     else:
         data = _load_server_data()
