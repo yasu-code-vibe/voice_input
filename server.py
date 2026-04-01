@@ -704,6 +704,7 @@ HTML = """<!DOCTYPE html>
 
     // --- テキスト領域への入力/ペースト時に送信ボタンを連動 ---
     transcript.addEventListener('input', () => {
+
       sendBtn.disabled = transcript.textContent.trim() === '';
     });
 
@@ -712,6 +713,7 @@ HTML = """<!DOCTYPE html>
       e.preventDefault();
       const text = (e.clipboardData || window.clipboardData).getData('text/plain');
       if (!text) return;
+
       transcript.textContent = text;
       sendBtn.disabled = false;
     });
@@ -990,6 +992,7 @@ HTML = """<!DOCTYPE html>
         resendBtn.className = 'resend-btn';
         resendBtn.textContent = '再送';
         resendBtn.addEventListener('click', () => {
+    
           transcript.textContent = text;
           finalText = text;
           sendBtn.disabled = false;
@@ -1076,6 +1079,7 @@ HTML = """<!DOCTYPE html>
             interimText += event.results[i][0].transcript;
           }
         }
+  
         transcript.textContent = finalText + interimText;
         sendBtn.disabled = (finalText + interimText).trim() === '';
       };
@@ -1177,6 +1181,7 @@ HTML = """<!DOCTYPE html>
 
     clearBtn.addEventListener('click', () => {
       finalText = '';
+
       interimText = '';
       transcript.textContent = '';
       sendBtn.disabled = true;
@@ -1285,14 +1290,6 @@ HTML = """<!DOCTYPE html>
       clipboardMonitorBtn.style.color = '#6c7086';
     }
 
-    // iOS では Clipboard API が制限されているためボタンを無効化
-    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      clipboardMonitorBtn.disabled = true;
-      clipboardMonitorBtn.textContent = '非対応（iOS制限）';
-      clipboardMonitorBtn.style.background = '#45475a';
-      clipboardMonitorBtn.style.color = '#6c7086';
-    }
-
     clipboardMonitorBtn.addEventListener('click', async () => {
       if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) return;
       if (clipboardMonitorEnabled) {
@@ -1315,7 +1312,8 @@ HTML = """<!DOCTYPE html>
       }
     });
 
-    async function tryReadClipboard() {
+    // フォーカス取得時にクリップボードをチェックして変化があればペースト
+    async function checkClipboardOnFocus() {
       if (!clipboardMonitorEnabled) return;
       if (!navigator.clipboard || !navigator.clipboard.readText) return;
       try {
@@ -1329,19 +1327,31 @@ HTML = """<!DOCTYPE html>
           statusEl.classList.remove('error');
         }
       } catch (e) {
-        // 読み取り失敗（フォーカス不足・一時的な権限エラー）- 監視は維持する
+        // 権限エラー等は無視
       }
     }
 
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState !== 'visible') return;
-      // フォーカスが安定するまで少し待ってから読み取る
-      setTimeout(tryReadClipboard, 500);
+    // フォーカス取得時：キャッシュをリセットしてクリップボードをチェック
+    window.addEventListener('focus', () => {
+      lastClipboardText = '';
+      setTimeout(checkClipboardOnFocus, 100);
     });
 
-    window.addEventListener('focus', () => {
-      setTimeout(tryReadClipboard, 300);
+    // 別アプリ切り替え時（visibilitychange）
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        lastClipboardText = '';
+        setTimeout(checkClipboardOnFocus, 300);
+      }
     });
+
+    // ロングタップ後は focus が発火しないため touchstart でカバー
+    // ボタン・テキスト領域等のインタラクティブ要素は除外
+    document.addEventListener('touchstart', (e) => {
+      if (e.target.closest('button, a, input, select')) return;
+      lastClipboardText = transcript.textContent.trim();
+      setTimeout(checkClipboardOnFocus, 100);
+    }, { passive: true });
   </script>
 </body>
 </html>
