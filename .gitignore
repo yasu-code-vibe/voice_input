@@ -3,3 +3,5 @@ server.log
 cert.pem
 key.pem
 history_server.json
+__pycache__/
+*.pyc
