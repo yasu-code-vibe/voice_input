@@ -1139,7 +1139,7 @@ HTML = """<!DOCTYPE html>
         });
         const data = await res.json();
         if (data.status === 'ok') {
-          resultEl.textContent = '✅ クリップボードにコピーしました！VS CodeでCtrl+Vで貼り付けてください。';
+          resultEl.textContent = '✅ クリップボードにコピーしました！Ctrl+Vで貼り付けてください。';
           resultEl.classList.remove('error');
           if (!isResend) addHistory(text);
         } else {
