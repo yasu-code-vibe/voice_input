@@ -626,6 +626,14 @@ HTML = """<!DOCTYPE html>
           <button data-val="snap">スナップ</button>
           <button data-val="float">フローティング</button>
         </div>
+        <div style="margin-top: 16px;">
+        <div class="settings-row-title">認識モード</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;">自動停止：1発話ごとに停止。連続認識：送信後に自動で再認識を繰り返します（ハンズフリー）。</div>
+        <div class="seg-ctrl" id="recog-mode-ctrl">
+          <button class="seg-btn" data-val="auto-stop">自動停止</button>
+          <button class="seg-btn" data-val="continuous">連続認識</button>
+        </div>
+        </div>
       </div>
 
       <div class="settings-section">
@@ -1049,6 +1057,26 @@ HTML = """<!DOCTYPE html>
     let isListening = false;
     let finalText = '';
     let interimText = '';
+    let manualStop = false;  // ユーザーが手動停止したフラグ
+
+    const RECOG_MODE_KEY = 'recog_mode';  // 'auto-stop' | 'continuous'
+    function isContinuousMode() {
+      const val = localStorage.getItem(RECOG_MODE_KEY);
+      return val === null ? true : val === 'continuous';
+    }
+
+    const recogModeCtrl = document.getElementById('recog-mode-ctrl');
+    function updateRecogModeCtrl() {
+      const val = localStorage.getItem(RECOG_MODE_KEY) || 'continuous';
+      recogModeCtrl.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.val === val));
+    }
+    recogModeCtrl.querySelectorAll('.seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        localStorage.setItem(RECOG_MODE_KEY, btn.dataset.val);
+        updateRecogModeCtrl();
+      });
+    });
+    updateRecogModeCtrl();
 
     // Web Speech API の初期化
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1093,10 +1121,25 @@ HTML = """<!DOCTYPE html>
         if (finalText.trim()) {
           statusEl.textContent = '認識完了。自動送信します...';
           sendBtn.disabled = false;
-          doSend();
+          if (isContinuousMode() && !manualStop) {
+            doSend().then(() => {
+              finalText = '';
+              transcript.textContent = '';
+              statusEl.textContent = '認識中...';
+              recognition.start();
+            });
+          } else {
+            doSend();
+          }
         } else {
-          statusEl.textContent = 'マイクボタンを押して話してください';
+          if (isContinuousMode() && !manualStop) {
+            statusEl.textContent = '認識中...';
+            recognition.start();
+          } else {
+            statusEl.textContent = 'マイクボタンを押して話してください';
+          }
         }
+        manualStop = false;
       };
 
       recognition.onerror = (event) => {
@@ -1111,6 +1154,7 @@ HTML = """<!DOCTYPE html>
     micBtn.addEventListener('click', () => {
       if (micMode === 'float' && floatDragMoved) { floatDragMoved = false; return; }
       if (isListening) {
+        manualStop = true;
         const current = (finalText + interimText).trim();
         if (current) {
           finalText = current;
