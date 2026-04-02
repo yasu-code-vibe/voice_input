@@ -5,13 +5,14 @@
 """
 
 import os
+import re
 import json
 import atexit
 import socket
 import threading
 import subprocess
 import pyperclip
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify
 
 try:
     import pymysql
@@ -23,6 +24,19 @@ except ImportError:
 app = Flask(__name__)
 
 PID_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'server.pid')
+_LOCALE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'locales')
+
+
+def _load_locale(lang='ja'):
+    """指定言語のロケールJSONを読み込んで辞書で返す"""
+    locale_file = os.path.join(_LOCALE_DIR, f'{lang}.json')
+    try:
+        with open(locale_file, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
 HISTORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'history_server.json')
 HISTORY_MAX = 1000
 
@@ -569,8 +583,8 @@ HTML = """<!DOCTYPE html>
 <body>
   <div class="title-bar">
     <div class="title-spacer"></div>
-    <h1>🎤 音声入力→AI</h1>
-    <button id="settings-btn" title="設定">⚙️</button>
+    <h1 data-i18n="app_title">🎤 音声入力→AI</h1>
+    <button id="settings-btn" data-i18n-title="app_settings_btn_title" title="設定">⚙️</button>
   </div>
 
   <div id="app-root">
@@ -578,20 +592,20 @@ HTML = """<!DOCTYPE html>
     <!-- メイン画面 -->
     <div id="main-screen">
       <div id="history-section">
-        <h2>📜 履歴</h2>
+        <h2 data-i18n="main_history_title">📜 履歴</h2>
         <div id="history-list"></div>
       </div>
 
       <div id="bottom-area">
-        <div id="status">マイクボタンを押して話してください</div>
+        <div id="status" data-i18n="main_status_idle">マイクボタンを押して話してください</div>
         <div id="result"></div>
         <div id="main-group">
-          <button id="mic-btn" title="音声認識 開始/停止">🎤</button>
+          <button id="mic-btn" data-i18n-title="main_mic_btn_title" title="音声認識 開始/停止">🎤</button>
           <div id="mic-placeholder"></div>
-          <div id="transcript" contenteditable="true" placeholder="ここにテキストが表示されます"></div>
+          <div id="transcript" contenteditable="true" data-i18n-placeholder="main_transcript_placeholder" placeholder="ここにテキストが表示されます"></div>
           <div class="btn-col">
-            <button class="btn" id="send-btn" disabled>📋 送信</button>
-            <button class="btn" id="clear-btn">🗑 クリア</button>
+            <button class="btn" id="send-btn" disabled data-i18n="main_btn_send">📋 送信</button>
+            <button class="btn" id="clear-btn" data-i18n="main_btn_clear">🗑 クリア</button>
           </div>
         </div>
         <button class="btn" id="pc-clip-btn">📥 PCクリップボードを取得</button>
@@ -601,78 +615,78 @@ HTML = """<!DOCTYPE html>
     <!-- 設定画面 -->
     <div id="settings-screen">
       <div class="title-bar" style="padding: 4px 0 12px;">
-        <button id="settings-back-btn">◀ 戻る</button>
-        <h1 style="font-size:1.1rem; text-align:center;">設定</h1>
+        <button id="settings-back-btn" data-i18n="settings_back">◀ 戻る</button>
+        <h1 style="font-size:1.1rem; text-align:center;" data-i18n="settings_title">設定</h1>
         <div class="title-spacer"></div>
       </div>
 
       <div id="settings-body">
       <div class="settings-section">
-        <div class="settings-label">入力</div>
-        <div class="settings-row-title">行末の付加文字</div>
-        <div class="settings-row-sub" style="margin: 4px 0 10px;">クリップボードへ送信時に末尾に追加</div>
+        <div class="settings-label" data-i18n="section_input">入力</div>
+        <div class="settings-row-title" data-i18n="suffix_title">行末の付加文字</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;" data-i18n="suffix_desc">クリップボードへ送信時に末尾に追加</div>
         <div class="seg-ctrl" id="suffix-ctrl">
-          <button data-val="none">なし</button>
-          <button data-val="space">スペース</button>
-          <button data-val="newline">改行</button>
+          <button data-val="none" data-i18n="suffix_none">なし</button>
+          <button data-val="space" data-i18n="suffix_space">スペース</button>
+          <button data-val="newline" data-i18n="suffix_newline">改行</button>
         </div>
       </div>
 
       <div class="settings-section">
-        <div class="settings-label">マイク</div>
-        <div class="settings-row-title">マイクボタンのモード</div>
-        <div class="settings-row-sub" style="margin: 4px 0 10px;">スナップ：左右にスナップ固定<br>フローティング：画面上を自由移動</div>
+        <div class="settings-label" data-i18n="section_mic">マイク</div>
+        <div class="settings-row-title" data-i18n="mic_mode_title">マイクボタンのモード</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;" data-i18n-html="mic_mode_desc">スナップ：左右にスナップ固定<br>フローティング：画面上を自由移動</div>
         <div class="seg-ctrl" id="mic-mode-ctrl">
-          <button data-val="snap">スナップ</button>
-          <button data-val="float">フローティング</button>
+          <button data-val="snap" data-i18n="mic_mode_snap">スナップ</button>
+          <button data-val="float" data-i18n="mic_mode_float">フローティング</button>
         </div>
         <div style="margin-top: 16px;">
-        <div class="settings-row-title">認識モード</div>
-        <div class="settings-row-sub" style="margin: 4px 0 10px;">自動停止：1発話ごとに停止。連続認識：送信後に自動で再認識を繰り返します（ハンズフリー）。</div>
+        <div class="settings-row-title" data-i18n="recog_mode_title">認識モード</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;" data-i18n="recog_mode_desc">自動停止：1発話ごとに停止。連続認識：送信後に自動で再認識を繰り返します（ハンズフリー）。</div>
         <div class="seg-ctrl" id="recog-mode-ctrl">
-          <button class="seg-btn" data-val="auto-stop">自動停止</button>
-          <button class="seg-btn" data-val="continuous">連続認識</button>
+          <button class="seg-btn" data-val="auto-stop" data-i18n="recog_mode_auto_stop">自動停止</button>
+          <button class="seg-btn" data-val="continuous" data-i18n="recog_mode_continuous">連続認識</button>
         </div>
         </div>
       </div>
 
       <div class="settings-section">
-        <div class="settings-label">履歴</div>
-        <div class="settings-row-title">保存場所</div>
-        <div class="settings-row-sub" style="margin: 4px 0 10px;">ローカル：この端末のみ保存。サーバ(JSON)：JSONファイルで全デバイス共有。サーバ(DB)：データベースで全デバイス共有。</div>
+        <div class="settings-label" data-i18n="section_history">履歴</div>
+        <div class="settings-row-title" data-i18n="history_storage_title">保存場所</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;" data-i18n="history_storage_desc">ローカル：この端末のみ保存。サーバ(JSON)：JSONファイルで全デバイス共有。サーバ(DB)：データベースで全デバイス共有。</div>
         <div class="seg-ctrl" id="history-storage-ctrl">
-          <button class="seg-btn" data-val="local">ローカル</button>
-          <button class="seg-btn" data-val="server-json">サーバ(JSON)</button>
-          <button class="seg-btn" data-val="server-db">サーバ(DB)</button>
+          <button class="seg-btn" data-val="local" data-i18n="history_storage_local">ローカル</button>
+          <button class="seg-btn" data-val="server-json" data-i18n="history_storage_server_json">サーバ(JSON)</button>
+          <button class="seg-btn" data-val="server-db" data-i18n="history_storage_server_db">サーバ(DB)</button>
         </div>
         <div style="margin-top: 16px;">
-        <div class="settings-row-title">削除時の確認ダイアログ</div>
-        <div class="settings-row-sub" style="margin: 4px 0 10px;">🗑 ボタンをタップした際に確認ダイアログを表示します。</div>
+        <div class="settings-row-title" data-i18n="history_del_confirm_title">削除時の確認ダイアログ</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;" data-i18n="history_del_confirm_desc">🗑 ボタンをタップした際に確認ダイアログを表示します。</div>
         <div class="seg-ctrl" id="del-confirm-ctrl">
           <button class="seg-btn" data-val="on">ON</button>
           <button class="seg-btn" data-val="off">OFF</button>
         </div>
         </div>
         <div style="margin-top: 16px;">
-        <div class="settings-row-title">ローカル履歴をクリア</div>
-        <div class="settings-row-sub" style="margin: 4px 0 10px;">このデバイスに保存されている履歴をすべて削除します。</div>
+        <div class="settings-row-title" data-i18n="history_clear_title">ローカル履歴をクリア</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;" data-i18n="history_clear_desc">このデバイスに保存されている履歴をすべて削除します。</div>
         <div style="display:flex; justify-content:flex-end;">
-          <button class="btn" id="clear-local-history-btn" style="background:#f38ba8; color:#1e1e2e;">🗑 ローカル履歴をクリア</button>
+          <button class="btn" id="clear-local-history-btn" style="background:#f38ba8; color:#1e1e2e;" data-i18n="history_clear_btn">🗑 ローカル履歴をクリア</button>
         </div>
         </div>
       </div>
 
       <div class="settings-section" id="clipboard-auto-section">
-        <div class="settings-label">クリップボード</div>
-        <div class="settings-row-title">クリップボード自動取得</div>
-        <div class="settings-row-sub" style="margin: 4px 0 10px;">他のアプリでコピーしてブラウザに戻ると自動でテキスト表示領域に貼り付けます。Android Chrome のみ対応。</div>
-        <button class="btn" id="clipboard-monitor-btn" style="color: #1e1e2e;">有効にする</button>
+        <div class="settings-label" data-i18n="section_clipboard">クリップボード</div>
+        <div class="settings-row-title" data-i18n="clipboard_auto_title">クリップボード自動取得</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;" data-i18n="clipboard_auto_desc">他のアプリでコピーしてブラウザに戻ると自動でテキスト表示領域に貼り付けます。Android Chrome のみ対応。</div>
+        <button class="btn" id="clipboard-monitor-btn" style="color: #1e1e2e;" data-i18n="clipboard_enable">有効にする</button>
       </div>
 
       <div class="settings-section">
-        <div class="settings-label">アプリ情報</div>
+        <div class="settings-label" data-i18n="section_info">アプリ情報</div>
         <div class="settings-row">
-          <div class="settings-row-title">バージョン</div>
+          <div class="settings-row-title" data-i18n="info_version">バージョン</div>
           <div class="version-text">voice_input v1.0.0</div>
         </div>
       </div>
@@ -685,12 +699,32 @@ HTML = """<!DOCTYPE html>
     <div id="confirm-dialog">
       <p id="confirm-msg"></p>
       <div class="confirm-btns">
-        <button id="confirm-cancel">キャンセル</button>
-        <button id="confirm-ok">削除</button>
+        <button id="confirm-cancel" data-i18n="confirm_cancel">キャンセル</button>
+        <button id="confirm-ok" data-i18n="confirm_ok">削除</button>
       </div>
     </div>
   </div>
 
+  <script>
+window.LOCALE = __LOCALE_JSON__;
+function t(key) { return window.LOCALE[key] || key; }
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    el.innerHTML = t(el.dataset.i18nHtml);
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.title = t(el.dataset.i18nTitle);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.setAttribute('placeholder', t(el.dataset.i18nPlaceholder));
+  });
+  document.title = t('app_title');
+}
+applyI18n();
+</script>
   <script>
     if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
       document.body.classList.add('ios');
@@ -998,7 +1032,7 @@ HTML = """<!DOCTYPE html>
         item.appendChild(span);
         const resendBtn = document.createElement('button');
         resendBtn.className = 'resend-btn';
-        resendBtn.textContent = '再送';
+        resendBtn.textContent = t('history_item_resend');
         resendBtn.addEventListener('click', () => {
     
           transcript.textContent = text;
@@ -1008,7 +1042,7 @@ HTML = """<!DOCTYPE html>
         });
         const delBtn = document.createElement('button');
         delBtn.className = 'resend-btn';
-        delBtn.textContent = '🗑';
+        delBtn.textContent = t('history_item_delete');
         delBtn.addEventListener('click', async () => {
           if (isDelConfirmEnabled()) {
             const ok = await showConfirm('この履歴を削除しますか？');
@@ -1081,7 +1115,7 @@ HTML = """<!DOCTYPE html>
     // Web Speech API の初期化
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      statusEl.textContent = 'このブラウザはWeb Speech APIに対応していません。Android Chromeをお使いください。';
+      statusEl.textContent = t('error_no_speech_api');
       statusEl.classList.add('error');
       micBtn.disabled = true;
     } else {
@@ -1094,7 +1128,7 @@ HTML = """<!DOCTYPE html>
         isListening = true;
         micBtn.classList.add('listening');
         micBtn.textContent = '⏹';
-        statusEl.textContent = '認識中...';
+        statusEl.textContent = t('status_recognizing');
         statusEl.classList.remove('error');
       };
 
@@ -1119,13 +1153,13 @@ HTML = """<!DOCTYPE html>
         interimText = '';
         transcript.textContent = finalText;
         if (finalText.trim()) {
-          statusEl.textContent = '認識完了。自動送信します...';
+          statusEl.textContent = t('status_recognized');
           sendBtn.disabled = false;
           if (isContinuousMode() && !manualStop) {
             doSend().then(() => {
               finalText = '';
               transcript.textContent = '';
-              statusEl.textContent = '認識中...';
+              statusEl.textContent = t('status_recognizing');
               recognition.start();
             });
           } else {
@@ -1133,10 +1167,10 @@ HTML = """<!DOCTYPE html>
           }
         } else {
           if (isContinuousMode() && !manualStop) {
-            statusEl.textContent = '認識中...';
+            statusEl.textContent = t('status_recognizing');
             recognition.start();
           } else {
-            statusEl.textContent = 'マイクボタンを押して話してください';
+            statusEl.textContent = t('status_idle');
           }
         }
         manualStop = false;
@@ -1146,7 +1180,7 @@ HTML = """<!DOCTYPE html>
         isListening = false;
         micBtn.classList.remove('listening');
         micBtn.textContent = '🎤';
-        statusEl.textContent = 'エラー: ' + event.error;
+        statusEl.textContent = t('error_recog_prefix') + event.error;
         statusEl.classList.add('error');
       };
     }
@@ -1183,15 +1217,15 @@ HTML = """<!DOCTYPE html>
         });
         const data = await res.json();
         if (data.status === 'ok') {
-          resultEl.textContent = '✅ クリップボードにコピーしました！Ctrl+Vで貼り付けてください。';
+          resultEl.textContent = t('result_send_ok');
           resultEl.classList.remove('error');
           if (!isResend) addHistory(text);
         } else {
-          throw new Error(data.message || '不明なエラー');
+          throw new Error(data.message || t('error_unknown'));
         }
       } catch (e) {
         if (!isResend) addHistory(text);
-        resultEl.textContent = '⚠️ バックエンドがオフラインのため、ローカルに保存しました。';
+        resultEl.textContent = t('result_send_offline');
         resultEl.classList.add('error');
         sendBtn.disabled = false;
         setTimeout(() => {
@@ -1215,10 +1249,10 @@ HTML = """<!DOCTYPE html>
             sendBtn.disabled = false;
           }
         } else {
-          throw new Error(data.message || '不明なエラー');
+          throw new Error(data.message || t('error_unknown'));
         }
       } catch (e) {
-        resultEl.textContent = '❌ PCクリップボード取得失敗: ' + e.message;
+        resultEl.textContent = t('result_clip_error') + e.message;
         resultEl.classList.add('error');
       }
     });
@@ -1230,7 +1264,7 @@ HTML = """<!DOCTYPE html>
       transcript.textContent = '';
       sendBtn.disabled = true;
       resultEl.textContent = '';
-      statusEl.textContent = 'マイクボタンを押して話してください';
+      statusEl.textContent = t('status_idle');
       statusEl.classList.remove('error');
     });
 
@@ -1266,7 +1300,7 @@ HTML = """<!DOCTYPE html>
     function updateHistoryStorageCtrl() {
       const val = localStorage.getItem(HISTORY_STORAGE_KEY) || 'local';
       historyStorageCtrl.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.val === val));
-      pcClipBtn.textContent = isServerMode() ? '📥 サーバークリップボードを取得' : '📥 PCクリップボードを取得';
+      pcClipBtn.textContent = isServerMode() ? t('main_btn_server_clip') : t('main_btn_pc_clip');
     }
     historyStorageCtrl.querySelectorAll('.seg-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1295,7 +1329,7 @@ HTML = """<!DOCTYPE html>
 
     // --- ローカル履歴クリア ---
     document.getElementById('clear-local-history-btn').addEventListener('click', async () => {
-      const ok = await showConfirm('ローカル履歴をすべて削除しますか？');
+      const ok = await showConfirm(t('confirm_clear_local'));
       if (!ok) return;
       localStorage.removeItem(HISTORY_KEY);
       localStorage.removeItem(HISTORY_SEQ_KEY);
@@ -1315,11 +1349,11 @@ HTML = """<!DOCTYPE html>
 
     function updateClipboardMonitorBtn() {
       if (clipboardMonitorEnabled) {
-        clipboardMonitorBtn.textContent = '無効にする';
+        clipboardMonitorBtn.textContent = t('clipboard_disable');
         clipboardMonitorBtn.style.background = '#89b4fa';
         clipboardMonitorBtn.style.color = '#1e1e2e';
       } else {
-        clipboardMonitorBtn.textContent = '有効にする';
+        clipboardMonitorBtn.textContent = t('clipboard_enable');
         clipboardMonitorBtn.style.background = '#45475a';
         clipboardMonitorBtn.style.color = '#cdd6f4';
       }
@@ -1329,7 +1363,7 @@ HTML = """<!DOCTYPE html>
     // iOS では Clipboard API が制限されているためボタンを無効化
     if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
       clipboardMonitorBtn.disabled = true;
-      clipboardMonitorBtn.textContent = '非対応（iOS制限）';
+      clipboardMonitorBtn.textContent = t('clipboard_ios_unsupported');
       clipboardMonitorBtn.style.background = '#45475a';
       clipboardMonitorBtn.style.color = '#6c7086';
     }
@@ -1342,7 +1376,7 @@ HTML = """<!DOCTYPE html>
         updateClipboardMonitorBtn();
       } else {
         if (!navigator.clipboard || !navigator.clipboard.readText) {
-          alert('このブラウザはクリップボード監視に対応していません。');
+          alert(t('error_clipboard_unsupported'));
           return;
         }
         try {
@@ -1351,7 +1385,7 @@ HTML = """<!DOCTYPE html>
           localStorage.setItem(CLIPBOARD_MONITOR_KEY, '1');
           updateClipboardMonitorBtn();
         } catch (e) {
-          alert('クリップボードの許可が得られませんでした。ブラウザの設定を確認してください。');
+          alert(t('error_clipboard_permission'));
         }
       }
     });
@@ -1367,7 +1401,7 @@ HTML = """<!DOCTYPE html>
           transcript.textContent = text;
           finalText = text;
           sendBtn.disabled = false;
-          statusEl.textContent = '📋 クリップボードからテキストを取得しました';
+          statusEl.textContent = t('status_clipboard_fetched');
           statusEl.classList.remove('error');
         }
       } catch (e) {
@@ -1404,7 +1438,17 @@ HTML = """<!DOCTYPE html>
 
 @app.route('/')
 def index():
-    return render_template_string(HTML)
+    return HTML.replace('__LOCALE_JSON__', json.dumps(_load_locale(), ensure_ascii=False))
+
+
+@app.route('/locale/<lang>', methods=['GET'])
+def locale(lang):
+    if not re.match(r'^[a-z]{2}(-[A-Za-z]+)?$', lang):
+        return jsonify({'status': 'error', 'message': 'Invalid language code'}), 400
+    data = _load_locale(lang)
+    if not data:
+        return jsonify({'status': 'error', 'message': 'Locale not found'}), 404
+    return jsonify(data)
 
 
 @app.route('/send', methods=['POST'])

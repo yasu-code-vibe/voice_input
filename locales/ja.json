@@ -1,0 +1,78 @@
+{
+  "app_title": "🎤 音声入力→AI",
+  "app_settings_title": "設定",
+  "app_settings_btn_title": "設定",
+
+  "main_history_title": "📜 履歴",
+  "main_status_idle": "マイクボタンを押して話してください",
+  "main_btn_send": "📋 送信",
+  "main_btn_clear": "🗑 クリア",
+  "main_btn_pc_clip": "📥 PCクリップボードを取得",
+  "main_btn_server_clip": "📥 サーバークリップボードを取得",
+  "main_transcript_placeholder": "ここにテキストが表示されます",
+  "main_mic_btn_title": "音声認識 開始/停止",
+
+  "settings_back": "◀ 戻る",
+  "settings_title": "設定",
+
+  "section_input": "入力",
+  "suffix_title": "行末の付加文字",
+  "suffix_desc": "クリップボードへ送信時に末尾に追加",
+  "suffix_none": "なし",
+  "suffix_space": "スペース",
+  "suffix_newline": "改行",
+
+  "section_mic": "マイク",
+  "mic_mode_title": "マイクボタンのモード",
+  "mic_mode_desc": "スナップ：左右にスナップ固定<br>フローティング：画面上を自由移動",
+  "mic_mode_snap": "スナップ",
+  "mic_mode_float": "フローティング",
+
+  "recog_mode_title": "認識モード",
+  "recog_mode_desc": "自動停止：1発話ごとに停止。連続認識：送信後に自動で再認識を繰り返します（ハンズフリー）。",
+  "recog_mode_auto_stop": "自動停止",
+  "recog_mode_continuous": "連続認識",
+
+  "section_history": "履歴",
+  "history_storage_title": "保存場所",
+  "history_storage_desc": "ローカル：この端末のみ保存。サーバ(JSON)：JSONファイルで全デバイス共有。サーバ(DB)：データベースで全デバイス共有。",
+  "history_storage_local": "ローカル",
+  "history_storage_server_json": "サーバ(JSON)",
+  "history_storage_server_db": "サーバ(DB)",
+  "history_del_confirm_title": "削除時の確認ダイアログ",
+  "history_del_confirm_desc": "🗑 ボタンをタップした際に確認ダイアログを表示します。",
+  "history_clear_title": "ローカル履歴をクリア",
+  "history_clear_desc": "このデバイスに保存されている履歴をすべて削除します。",
+  "history_clear_btn": "🗑 ローカル履歴をクリア",
+  "history_item_resend": "再送",
+  "history_item_delete": "🗑",
+
+  "section_clipboard": "クリップボード",
+  "clipboard_auto_title": "クリップボード自動取得",
+  "clipboard_auto_desc": "他のアプリでコピーしてブラウザに戻ると自動でテキスト表示領域に貼り付けます。Android Chrome のみ対応。",
+  "clipboard_enable": "有効にする",
+  "clipboard_disable": "無効にする",
+  "clipboard_ios_unsupported": "非対応（iOS制限）",
+
+  "section_info": "アプリ情報",
+  "info_version": "バージョン",
+
+  "confirm_cancel": "キャンセル",
+  "confirm_ok": "削除",
+  "confirm_clear_local": "ローカル履歴をすべて削除しますか？",
+
+  "status_recognizing": "認識中...",
+  "status_recognized": "認識完了。自動送信します...",
+  "status_idle": "マイクボタンを押して話してください",
+  "status_clipboard_fetched": "📋 クリップボードからテキストを取得しました",
+
+  "result_send_ok": "✅ クリップボードにコピーしました！Ctrl+Vで貼り付けてください。",
+  "result_send_offline": "⚠️ バックエンドがオフラインのため、ローカルに保存しました。",
+  "result_clip_error": "❌ PCクリップボード取得失敗: ",
+
+  "error_no_speech_api": "このブラウザはWeb Speech APIに対応していません。Android Chromeをお使いください。",
+  "error_unknown": "不明なエラー",
+  "error_recog_prefix": "エラー: ",
+  "error_clipboard_unsupported": "このブラウザはクリップボード監視に対応していません。",
+  "error_clipboard_permission": "クリップボードの許可が得られませんでした。ブラウザの設定を確認してください。"
+}
