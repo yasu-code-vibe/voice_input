@@ -1,0 +1,81 @@
+{
+  "app_title": "🎤 Voice Input→AI",
+  "app_settings_title": "Settings",
+  "app_settings_btn_title": "Settings",
+
+  "main_history_title": "📜 History",
+  "main_status_idle": "Tap the mic button and speak",
+  "main_btn_send": "📋 Send",
+  "main_btn_clear": "🗑 Clear",
+  "main_btn_pc_clip": "📥 Get PC Clipboard",
+  "main_btn_server_clip": "📥 Get Server Clipboard",
+  "main_transcript_placeholder": "Text will appear here",
+  "main_mic_btn_title": "Start/Stop voice recognition",
+
+  "settings_back": "◀ Back",
+  "settings_title": "Settings",
+
+  "section_input": "Input",
+  "suffix_title": "Append to end of text",
+  "suffix_desc": "Added to the end when sending to clipboard",
+  "suffix_none": "None",
+  "suffix_space": "Space",
+  "suffix_newline": "Newline",
+
+  "section_mic": "Microphone",
+  "mic_mode_title": "Mic Button Mode",
+  "mic_mode_desc": "Snap: snap to left/right<br>Float: drag freely on screen",
+  "mic_mode_snap": "Snap",
+  "mic_mode_float": "Float",
+
+  "recog_mode_title": "Recognition Mode",
+  "recog_mode_desc": "Auto-stop: stops after each utterance. Continuous: auto-restarts after sending (hands-free).",
+  "recog_mode_auto_stop": "Auto-stop",
+  "recog_mode_continuous": "Continuous",
+
+  "section_history": "History",
+  "history_storage_title": "Storage",
+  "history_storage_desc": "Local: saved on this device only. Server(JSON): shared via JSON file. Server(DB): shared via database.",
+  "history_storage_local": "Local",
+  "history_storage_server_json": "Server(JSON)",
+  "history_storage_server_db": "Server(DB)",
+  "history_del_confirm_title": "Delete Confirmation Dialog",
+  "history_del_confirm_desc": "Show a confirmation dialog when tapping the 🗑 button.",
+  "history_clear_title": "Clear Local History",
+  "history_clear_desc": "Delete all history saved on this device.",
+  "history_clear_btn": "🗑 Clear Local History",
+  "history_item_resend": "Resend",
+  "history_item_delete": "🗑",
+
+  "section_clipboard": "Clipboard",
+  "clipboard_auto_title": "Auto Clipboard Fetch",
+  "clipboard_auto_desc": "Automatically pastes clipboard content when returning to the browser after copying in another app. Android Chrome only.",
+  "clipboard_enable": "Enable",
+  "clipboard_disable": "Disable",
+  "clipboard_ios_unsupported": "Not supported (iOS restriction)",
+
+  "section_language": "Language",
+  "language_title": "Display Language",
+
+  "section_info": "App Info",
+  "info_version": "Version",
+
+  "confirm_cancel": "Cancel",
+  "confirm_ok": "Delete",
+  "confirm_clear_local": "Delete all local history?",
+
+  "status_recognizing": "Recognizing...",
+  "status_recognized": "Done. Sending automatically...",
+  "status_idle": "Tap the mic button and speak",
+  "status_clipboard_fetched": "📋 Text fetched from clipboard",
+
+  "result_send_ok": "✅ Copied to clipboard! Press Ctrl+V to paste.",
+  "result_send_offline": "⚠️ Backend offline. Saved locally.",
+  "result_clip_error": "❌ Failed to get PC clipboard: ",
+
+  "error_no_speech_api": "This browser does not support Web Speech API. Please use Android Chrome.",
+  "error_unknown": "Unknown error",
+  "error_recog_prefix": "Error: ",
+  "error_clipboard_unsupported": "This browser does not support clipboard monitoring.",
+  "error_clipboard_permission": "Clipboard permission denied. Please check your browser settings."
+}

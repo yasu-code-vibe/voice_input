@@ -1,0 +1,81 @@
+{
+  "app_title": "🎤 語音輸入→AI",
+  "app_settings_title": "設定",
+  "app_settings_btn_title": "設定",
+
+  "main_history_title": "📜 歷史記錄",
+  "main_status_idle": "請點擊麥克風按鈕後說話",
+  "main_btn_send": "📋 傳送",
+  "main_btn_clear": "🗑 清除",
+  "main_btn_pc_clip": "📥 取得PC剪貼簿",
+  "main_btn_server_clip": "📥 取得伺服器剪貼簿",
+  "main_transcript_placeholder": "文字將顯示於此",
+  "main_mic_btn_title": "開始/停止語音辨識",
+
+  "settings_back": "◀ 返回",
+  "settings_title": "設定",
+
+  "section_input": "輸入",
+  "suffix_title": "行尾附加字元",
+  "suffix_desc": "傳送至剪貼簿時附加至末尾",
+  "suffix_none": "無",
+  "suffix_space": "空格",
+  "suffix_newline": "換行",
+
+  "section_mic": "麥克風",
+  "mic_mode_title": "麥克風按鈕模式",
+  "mic_mode_desc": "吸附：左右吸附固定<br>浮動：在螢幕上自由移動",
+  "mic_mode_snap": "吸附",
+  "mic_mode_float": "浮動",
+
+  "recog_mode_title": "辨識模式",
+  "recog_mode_desc": "自動停止：每次發話後停止。連續辨識：傳送後自動重新辨識（免持）。",
+  "recog_mode_auto_stop": "自動停止",
+  "recog_mode_continuous": "連續辨識",
+
+  "section_history": "歷史記錄",
+  "history_storage_title": "儲存位置",
+  "history_storage_desc": "本機：僅儲存於本裝置。伺服器(JSON)：透過JSON檔案共享。伺服器(DB)：透過資料庫共享。",
+  "history_storage_local": "本機",
+  "history_storage_server_json": "伺服器(JSON)",
+  "history_storage_server_db": "伺服器(DB)",
+  "history_del_confirm_title": "刪除確認對話框",
+  "history_del_confirm_desc": "點擊🗑按鈕時顯示確認對話框。",
+  "history_clear_title": "清除本機記錄",
+  "history_clear_desc": "刪除本裝置上儲存的所有歷史記錄。",
+  "history_clear_btn": "🗑 清除本機記錄",
+  "history_item_resend": "重新傳送",
+  "history_item_delete": "🗑",
+
+  "section_clipboard": "剪貼簿",
+  "clipboard_auto_title": "自動取得剪貼簿",
+  "clipboard_auto_desc": "在其他應用程式複製後返回瀏覽器時，自動貼上至文字區域。僅支援Android Chrome。",
+  "clipboard_enable": "啟用",
+  "clipboard_disable": "停用",
+  "clipboard_ios_unsupported": "不支援（iOS限制）",
+
+  "section_language": "語言",
+  "language_title": "顯示語言",
+
+  "section_info": "應用程式資訊",
+  "info_version": "版本",
+
+  "confirm_cancel": "取消",
+  "confirm_ok": "刪除",
+  "confirm_clear_local": "確定刪除所有本機歷史記錄嗎？",
+
+  "status_recognizing": "辨識中...",
+  "status_recognized": "辨識完成。正在自動傳送...",
+  "status_idle": "請點擊麥克風按鈕後說話",
+  "status_clipboard_fetched": "📋 已從剪貼簿取得文字",
+
+  "result_send_ok": "✅ 已複製至剪貼簿！請按Ctrl+V貼上。",
+  "result_send_offline": "⚠️ 後端離線，已儲存至本機。",
+  "result_clip_error": "❌ 取得PC剪貼簿失敗：",
+
+  "error_no_speech_api": "此瀏覽器不支援Web Speech API，請使用Android Chrome。",
+  "error_unknown": "未知錯誤",
+  "error_recog_prefix": "錯誤：",
+  "error_clipboard_unsupported": "此瀏覽器不支援剪貼簿監控。",
+  "error_clipboard_permission": "無法取得剪貼簿權限，請檢查瀏覽器設定。"
+}

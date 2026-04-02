@@ -1,0 +1,81 @@
+{
+  "app_title": "🎤 语音输入→AI",
+  "app_settings_title": "设置",
+  "app_settings_btn_title": "设置",
+
+  "main_history_title": "📜 历史记录",
+  "main_status_idle": "请点击麦克风按钮后说话",
+  "main_btn_send": "📋 发送",
+  "main_btn_clear": "🗑 清除",
+  "main_btn_pc_clip": "📥 获取PC剪贴板",
+  "main_btn_server_clip": "📥 获取服务器剪贴板",
+  "main_transcript_placeholder": "文字将显示在此处",
+  "main_mic_btn_title": "开始/停止语音识别",
+
+  "settings_back": "◀ 返回",
+  "settings_title": "设置",
+
+  "section_input": "输入",
+  "suffix_title": "行尾附加字符",
+  "suffix_desc": "发送到剪贴板时追加到末尾",
+  "suffix_none": "无",
+  "suffix_space": "空格",
+  "suffix_newline": "换行",
+
+  "section_mic": "麦克风",
+  "mic_mode_title": "麦克风按钮模式",
+  "mic_mode_desc": "吸附：左右吸附固定<br>浮动：在屏幕上自由移动",
+  "mic_mode_snap": "吸附",
+  "mic_mode_float": "浮动",
+
+  "recog_mode_title": "识别模式",
+  "recog_mode_desc": "自动停止：每次发话后停止。连续识别：发送后自动重新识别（免提）。",
+  "recog_mode_auto_stop": "自动停止",
+  "recog_mode_continuous": "连续识别",
+
+  "section_history": "历史记录",
+  "history_storage_title": "保存位置",
+  "history_storage_desc": "本地：仅保存在本设备。服务器(JSON)：通过JSON文件共享。服务器(DB)：通过数据库共享。",
+  "history_storage_local": "本地",
+  "history_storage_server_json": "服务器(JSON)",
+  "history_storage_server_db": "服务器(DB)",
+  "history_del_confirm_title": "删除确认对话框",
+  "history_del_confirm_desc": "点击🗑按钮时显示确认对话框。",
+  "history_clear_title": "清除本地记录",
+  "history_clear_desc": "删除本设备上保存的所有历史记录。",
+  "history_clear_btn": "🗑 清除本地记录",
+  "history_item_resend": "重发",
+  "history_item_delete": "🗑",
+
+  "section_clipboard": "剪贴板",
+  "clipboard_auto_title": "自动获取剪贴板",
+  "clipboard_auto_desc": "在其他应用复制后返回浏览器时，自动粘贴到文本区域。仅支持Android Chrome。",
+  "clipboard_enable": "启用",
+  "clipboard_disable": "禁用",
+  "clipboard_ios_unsupported": "不支持（iOS限制）",
+
+  "section_language": "语言",
+  "language_title": "显示语言",
+
+  "section_info": "应用信息",
+  "info_version": "版本",
+
+  "confirm_cancel": "取消",
+  "confirm_ok": "删除",
+  "confirm_clear_local": "确定删除所有本地历史记录吗？",
+
+  "status_recognizing": "识别中...",
+  "status_recognized": "识别完成。正在自动发送...",
+  "status_idle": "请点击麦克风按钮后说话",
+  "status_clipboard_fetched": "📋 已从剪贴板获取文字",
+
+  "result_send_ok": "✅ 已复制到剪贴板！请按Ctrl+V粘贴。",
+  "result_send_offline": "⚠️ 后端离线，已保存到本地。",
+  "result_clip_error": "❌ 获取PC剪贴板失败：",
+
+  "error_no_speech_api": "此浏览器不支持Web Speech API，请使用Android Chrome。",
+  "error_unknown": "未知错误",
+  "error_recog_prefix": "错误：",
+  "error_clipboard_unsupported": "此浏览器不支持剪贴板监控。",
+  "error_clipboard_permission": "无法获取剪贴板权限，请检查浏览器设置。"
+}

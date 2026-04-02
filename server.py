@@ -387,6 +387,26 @@ HTML = """<!DOCTYPE html>
     /* マイクモード切替 */
 
 
+    /* 言語選択ドロップダウン */
+    #lang-select {
+      background: #45475a;
+      color: #cdd6f4;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 36px 10px 14px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23cdd6f4' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      min-width: 180px;
+    }
+    #lang-select:focus { outline: 2px solid #89b4fa; }
+    #lang-select option { background: #313244; }
+
     /* バージョン情報 */
     .version-text {
       font-size: 0.9rem;
@@ -681,6 +701,20 @@ HTML = """<!DOCTYPE html>
         <div class="settings-row-title" data-i18n="clipboard_auto_title">クリップボード自動取得</div>
         <div class="settings-row-sub" style="margin: 4px 0 10px;" data-i18n="clipboard_auto_desc">他のアプリでコピーしてブラウザに戻ると自動でテキスト表示領域に貼り付けます。Android Chrome のみ対応。</div>
         <button class="btn" id="clipboard-monitor-btn" style="color: #1e1e2e;" data-i18n="clipboard_enable">有効にする</button>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label" data-i18n="section_language">言語</div>
+        <div class="settings-row-title" data-i18n="language_title">表示言語</div>
+        <div style="margin-top: 8px; display:flex; justify-content:flex-end;">
+          <select id="lang-select">
+            <option value="ja">🇯🇵 日本語</option>
+            <option value="en">🇺🇸 English</option>
+            <option value="ko">🇰🇷 한국어</option>
+            <option value="zh-Hans">🇨🇳 中文（简体）</option>
+            <option value="zh-Hant">🇹🇼 中文（繁體）</option>
+          </select>
+        </div>
       </div>
 
       <div class="settings-section">
@@ -1326,6 +1360,36 @@ applyI18n();
       });
     });
     updateDelConfirmCtrl();
+
+    // --- 言語切替 ---
+    const LANG_KEY = 'lang';
+    const langSelect = document.getElementById('lang-select');
+
+    async function applyLang(lang) {
+      if (lang === 'ja') {
+        // デフォルトロケールはインライン埋め込み済みのため再取得不要
+        applyI18n();
+      } else {
+        try {
+          const res = await fetch('/locale/' + lang);
+          if (res.ok) {
+            window.LOCALE = await res.json();
+            applyI18n();
+          }
+        } catch (e) { /* ネットワークエラー時はそのまま */ }
+      }
+      langSelect.value = lang;
+    }
+
+    langSelect.addEventListener('change', () => {
+      const lang = langSelect.value;
+      localStorage.setItem(LANG_KEY, lang);
+      applyLang(lang);
+    });
+
+    // 起動時: 保存された言語を適用
+    const savedLang = localStorage.getItem(LANG_KEY) || 'ja';
+    applyLang(savedLang);
 
     // --- ローカル履歴クリア ---
     document.getElementById('clear-local-history-btn').addEventListener('click', async () => {

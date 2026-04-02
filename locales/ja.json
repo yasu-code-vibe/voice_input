@@ -54,6 +54,9 @@
   "clipboard_disable": "無効にする",
   "clipboard_ios_unsupported": "非対応（iOS制限）",
 
+  "section_language": "言語",
+  "language_title": "表示言語",
+
   "section_info": "アプリ情報",
   "info_version": "バージョン",
 
