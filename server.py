@@ -1365,9 +1365,11 @@ applyI18n();
     const LANG_KEY = 'lang';
     const langSelect = document.getElementById('lang-select');
 
+    const JA_LOCALE = window.LOCALE;  // 起動時の日本語ロケールを保存
+
     async function applyLang(lang) {
       if (lang === 'ja') {
-        // デフォルトロケールはインライン埋め込み済みのため再取得不要
+        window.LOCALE = JA_LOCALE;
         applyI18n();
       } else {
         try {
