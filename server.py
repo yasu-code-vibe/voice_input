@@ -77,6 +77,7 @@ def _get_db_conn():
             ) CHARACTER SET utf8mb4
         """)
         cur.execute("INSERT IGNORE INTO meta (key_name, value_int) VALUES ('seq', -1)")
+        cur.execute("INSERT IGNORE INTO meta (key_name, value_int) VALUES ('history_max', %s)", (HISTORY_MAX,))
     conn.commit()
     return conn
 
@@ -93,14 +94,15 @@ def _db_get_history():
         conn.close()
 
 
-def _db_add_history(text, ts):
+def _db_add_history(text, ts, history_max=HISTORY_MAX):
     """MySQL: 重複削除→seq採番→INSERT。seqはmeta表で管理"""
     conn = _get_db_conn()
     try:
         with conn.cursor() as cur:
             cur.execute("DELETE FROM history WHERE text = %s", (text,))
             cur.execute(
-                "UPDATE meta SET value_int = MOD(value_int + 1, 1000) WHERE key_name = 'seq'"
+                "UPDATE meta SET value_int = MOD(value_int + 1, %s) WHERE key_name = 'seq'",
+                (history_max,)
             )
             cur.execute("SELECT value_int FROM meta WHERE key_name = 'seq'")
             row = cur.fetchone()
@@ -109,13 +111,13 @@ def _db_add_history(text, ts):
                 "INSERT INTO history (seq, text, ts) VALUES (%s, %s, %s)",
                 (seq, text, ts)
             )
-            # HISTORY_MAX超過分を古い順に削除
+            # history_max超過分を古い順に削除
             cur.execute("SELECT COUNT(*) AS cnt FROM history")
             cnt = cur.fetchone()['cnt']
-            if cnt > HISTORY_MAX:
+            if cnt > history_max:
                 cur.execute(
                     "DELETE FROM history ORDER BY id ASC LIMIT %s",
-                    (cnt - HISTORY_MAX,)
+                    (cnt - history_max,)
                 )
         conn.commit()
         return seq
@@ -139,14 +141,69 @@ def _load_server_data():
         with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
             if isinstance(data, list):  # 旧フォーマット移行
-                return {'seq': -1, 'history': data}
+                return {'seq': -1, 'history': data, 'history_max': HISTORY_MAX}
+            if 'history_max' not in data:
+                data['history_max'] = HISTORY_MAX
             return data
-    return {'seq': -1, 'history': []}
+    return {'seq': -1, 'history': [], 'history_max': HISTORY_MAX}
+
+
+def _get_server_history_max(mode=None):
+    """サーバー保存の history_max を返す（mode: 'db' or 'json', None=自動判定）"""
+    use_db = (mode == 'db') if mode else _use_mysql()
+    if use_db:
+        conn = _get_db_conn()
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT value_int FROM meta WHERE key_name = 'history_max'")
+                row = cur.fetchone()
+                return row['value_int'] if row else HISTORY_MAX
+        finally:
+            conn.close()
+    else:
+        return _load_server_data().get('history_max', HISTORY_MAX)
+
+
+def _set_server_history_max(value, mode=None):
+    """サーバーに history_max を保存する（mode: 'db' or 'json', None=自動判定）
+    seq が新しい history_max 以上の場合は seq を -1（次回0から開始）にリセットする。
+    """
+    value = max(1000, min(999999, int(value)))
+    use_db = (mode == 'db') if mode else _use_mysql()
+    if use_db:
+        conn = _get_db_conn()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO meta (key_name, value_int) VALUES ('history_max', %s) "
+                    "ON DUPLICATE KEY UPDATE value_int = %s",
+                    (value, value)
+                )
+                # seq が新しい history_max 以上ならリセット
+                cur.execute("SELECT value_int FROM meta WHERE key_name = 'seq'")
+                row = cur.fetchone()
+                if row and row['value_int'] >= value:
+                    cur.execute("UPDATE meta SET value_int = -1 WHERE key_name = 'seq'")
+            conn.commit()
+        finally:
+            conn.close()
+    else:
+        data = _load_server_data()
+        data['history_max'] = value
+        # seq が新しい history_max 以上ならリセット
+        if data.get('seq', -1) >= value:
+            data['seq'] = -1
+        _save_server_data(data)
 
 
 def _save_server_data(data):
+    ordered = {
+        'seq': data.get('seq', -1),
+        'history_max': data.get('history_max', HISTORY_MAX),
+        'history': data.get('history', []),
+    }
     with open(HISTORY_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(ordered, f, ensure_ascii=False, indent=2)
 
 
 def copy_to_clipboard(text):
@@ -577,6 +634,10 @@ HTML = """<!DOCTYPE html>
       color: #cdd6f4;
       -webkit-text-fill-color: #cdd6f4;
     }
+    #transcript[contenteditable="false"] {
+      opacity: 0.6;
+      cursor: default;
+    }
     .btn-col {
       display: flex;
       flex-direction: column;
@@ -680,6 +741,15 @@ HTML = """<!DOCTYPE html>
           <button class="seg-btn" data-val="server-db" data-i18n="history_storage_server_db">サーバ(DB)</button>
         </div>
         <div style="margin-top: 16px;">
+        <div class="settings-row-title" data-i18n="history_max_title">最大保存件数</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;" data-i18n="history_max_desc">ローカルストレージに保存する履歴の最大件数です。</div>
+        <div style="display:flex; align-items:center; gap:8px; justify-content:flex-end;">
+          <input type="number" id="history-max-input" min="1000" max="999999" step="1"
+            style="width:120px; padding:6px 10px; border-radius:8px; border:1px solid #45475a; background:#1e1e2e; color:#cdd6f4; font-size:1rem; text-align:right;">
+          <span style="color:#6c7086; font-size:0.85rem;">件</span>
+        </div>
+        </div>
+        <div style="margin-top: 16px;">
         <div class="settings-row-title" data-i18n="history_del_confirm_title">削除時の確認ダイアログ</div>
         <div class="settings-row-sub" style="margin: 4px 0 10px;" data-i18n="history_del_confirm_desc">🗑 ボタンをタップした際に確認ダイアログを表示します。</div>
         <div class="seg-ctrl" id="del-confirm-ctrl">
@@ -779,8 +849,9 @@ applyI18n();
     const historyList = document.getElementById('history-list');
 
     // --- テキスト領域への入力/ペースト時に送信ボタンを連動 ---
+    let userEditedTranscript = false;
     transcript.addEventListener('input', () => {
-
+      userEditedTranscript = true;
       sendBtn.disabled = transcript.textContent.trim() === '';
     });
 
@@ -806,8 +877,10 @@ applyI18n();
       settingsScreen.classList.add('slide-in');
       settingsBtn.style.visibility = 'hidden';
       micBtn.style.display = 'none';
+      loadHistoryMaxSetting();
     });
-    document.getElementById('settings-back-btn').addEventListener('click', () => {
+    document.getElementById('settings-back-btn').addEventListener('click', async () => {
+      await saveHistoryMaxSetting();
       settingsOpen = false;
       mainScreen.classList.remove('slide-out');
       settingsScreen.classList.remove('slide-in');
@@ -956,8 +1029,12 @@ applyI18n();
     updateMicModeCtrl();
     const HISTORY_KEY = 'voice_input_history';
     const HISTORY_SEQ_KEY = 'voice_input_seq';
-    const HISTORY_MAX = 1000;
+    const HISTORY_MAX_KEY = 'voice_input_history_max';
     const HISTORY_STORAGE_KEY = 'history_storage';
+    function getHistoryMax() {
+      const v = parseInt(localStorage.getItem(HISTORY_MAX_KEY) || '1000');
+      return Math.max(1000, Math.min(999999, isNaN(v) ? 1000 : v));
+    }
 
     function isServerMode() {
       const v = localStorage.getItem(HISTORY_STORAGE_KEY);
@@ -977,7 +1054,7 @@ applyI18n();
     }
 
     function nextSeq() {
-      const seq = (parseInt(localStorage.getItem(HISTORY_SEQ_KEY) || '-1') + 1) % 1000;
+      const seq = (parseInt(localStorage.getItem(HISTORY_SEQ_KEY) || '-1') + 1) % getHistoryMax();
       localStorage.setItem(HISTORY_SEQ_KEY, String(seq));
       return seq;
     }
@@ -1006,7 +1083,7 @@ applyI18n();
           const res = await fetch('/history/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text, ts, mode: getServerMode() })
+            body: JSON.stringify({ text, ts, mode: getServerMode(), history_max: getHistoryMax() })
           });
           if (!res.ok) throw new Error();
           await refreshAndRender();
@@ -1014,14 +1091,14 @@ applyI18n();
           switchToLocal();
           const history = loadHistory().filter(t => t.text !== text);
           history.unshift({ seq: nextSeq(), text, ts });
-          if (history.length > HISTORY_MAX) history.pop();
+          if (history.length > getHistoryMax()) history.pop();
           saveHistory(history);
           renderHistory(loadHistory());
         }
       } else {
         const history = loadHistory().filter(t => t.text !== text);
         history.unshift({ seq: nextSeq(), text, ts: new Date().toISOString() });
-        if (history.length > HISTORY_MAX) history.pop();
+        if (history.length > getHistoryMax()) history.pop();
         saveHistory(history);
         renderHistory(loadHistory());
       }
@@ -1048,7 +1125,8 @@ applyI18n();
       }
       history.slice().reverse().forEach(entry => {
         const text = typeof entry === 'string' ? entry : entry.text;
-        const seq  = typeof entry === 'string' ? '' : String(entry.seq).padStart(3, '0');
+        const seqDigits = String(getHistoryMax() - 1).length;
+        const seq  = typeof entry === 'string' ? '' : String(entry.seq).padStart(seqDigits, '0');
         const ts   = typeof entry === 'string' ? '' : (entry.ts || '');
         const item = document.createElement('div');
         item.className = 'history-item';
@@ -1124,6 +1202,7 @@ applyI18n();
     let recognition = null;
     let isListening = false;
     let finalText = '';
+    let clipboardAutoText = ''; // クリップボード自動取得テキスト（finalTextとは別管理）
     let interimText = '';
     let manualStop = false;  // ユーザーが手動停止したフラグ
 
@@ -1168,6 +1247,7 @@ applyI18n();
 
       recognition.onresult = (event) => {
         interimText = '';
+        clipboardAutoText = ''; // 音声入力が来たらクリップボードテキストをクリア
         for (let i = event.resultIndex; i < event.results.length; i++) {
           if (event.results[i].isFinal) {
             finalText += event.results[i][0].transcript;
@@ -1185,25 +1265,38 @@ applyI18n();
         micBtn.classList.remove('listening');
         micBtn.textContent = '🎤';
         interimText = '';
-        transcript.textContent = finalText;
+        // 音声テキストがある場合のみ transcript を上書き（クリップボードテキストを守る）
+        if (finalText) {
+          transcript.textContent = finalText;
+          clipboardAutoText = '';
+        }
+        userEditedTranscript = false;
         if (finalText.trim()) {
           statusEl.textContent = t('status_recognized');
           sendBtn.disabled = false;
           if (isContinuousMode() && !manualStop) {
             doSend().then(() => {
               finalText = '';
+              clipboardAutoText = '';
               transcript.textContent = '';
               statusEl.textContent = t('status_recognizing');
               recognition.start();
             });
           } else {
+            transcript.contentEditable = 'true';
             doSend();
           }
         } else {
           if (isContinuousMode() && !manualStop) {
-            statusEl.textContent = t('status_recognizing');
-            recognition.start();
+            // ページが表示中の場合のみ再起動（非表示時は visibilitychange で再起動）
+            if (document.visibilityState === 'visible') {
+              statusEl.textContent = clipboardAutoText
+                ? t('status_clipboard_fetched')
+                : t('status_recognizing');
+              recognition.start();
+            }
           } else {
+            transcript.contentEditable = 'true';
             statusEl.textContent = t('status_idle');
           }
         }
@@ -1214,6 +1307,9 @@ applyI18n();
         isListening = false;
         micBtn.classList.remove('listening');
         micBtn.textContent = '🎤';
+        // バックグラウンド移行による中断は連続認識モードでは正常動作
+        if (isContinuousMode() && !manualStop && event.error === 'aborted') return;
+        transcript.contentEditable = 'true';
         statusEl.textContent = t('error_recog_prefix') + event.error;
         statusEl.classList.add('error');
       };
@@ -1232,9 +1328,12 @@ applyI18n();
         recognition.stop();
       } else {
         finalText = '';
+        clipboardAutoText = '';
         transcript.textContent = '';
+        userEditedTranscript = false;
         sendBtn.disabled = true;
         resultEl.textContent = '';
+        if (isContinuousMode()) transcript.contentEditable = 'false';
         recognition.start();
       }
     });
@@ -1293,9 +1392,10 @@ applyI18n();
 
     clearBtn.addEventListener('click', () => {
       finalText = '';
-
       interimText = '';
+      clipboardAutoText = '';
       transcript.textContent = '';
+      userEditedTranscript = false;
       sendBtn.disabled = true;
       resultEl.textContent = '';
       statusEl.textContent = t('status_idle');
@@ -1340,6 +1440,7 @@ applyI18n();
       btn.addEventListener('click', () => {
         localStorage.setItem(HISTORY_STORAGE_KEY, btn.dataset.val);
         updateHistoryStorageCtrl();
+        loadHistoryMaxSetting(); // 保存先変更時に history_max を再読み込み
         openTsSeqs.clear();
         refreshAndRender().then(() => { historyList.scrollTop = historyList.scrollHeight; });
       });
@@ -1392,6 +1493,47 @@ applyI18n();
     // 起動時: 保存された言語を適用
     const savedLang = localStorage.getItem(LANG_KEY) || 'ja';
     applyLang(savedLang);
+
+    // --- 最大保存件数 ---
+    const historyMaxInput = document.getElementById('history-max-input');
+    let serverHistoryMax = null; // サーバーから取得した値を記憶
+
+    async function loadHistoryMaxSetting() {
+      if (isServerMode()) {
+        try {
+          const res = await fetch('/settings?mode=' + getServerMode());
+          const data = await res.json();
+          serverHistoryMax = data.history_max;
+          historyMaxInput.value = serverHistoryMax;
+        } catch {
+          serverHistoryMax = null;
+          historyMaxInput.value = getHistoryMax();
+        }
+      } else {
+        serverHistoryMax = null;
+        historyMaxInput.value = getHistoryMax();
+      }
+    }
+    loadHistoryMaxSetting();
+
+    async function saveHistoryMaxSetting() {
+      let v = parseInt(historyMaxInput.value);
+      if (isNaN(v) || v < 1000) v = 1000;
+      if (v > 999999) v = 999999;
+      historyMaxInput.value = v;
+      // サーバーモードかつ取得成功済み かつ 値が変わった場合のみPOST
+      if (isServerMode() && serverHistoryMax !== null && v !== serverHistoryMax) {
+        try {
+          await fetch('/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ history_max: v, mode: getServerMode() })
+          });
+          serverHistoryMax = v;
+        } catch { /* サーバーオフライン時はローカルのみ保存 */ }
+      }
+      localStorage.setItem(HISTORY_MAX_KEY, String(v));
+    }
 
     // --- ローカル履歴クリア ---
     document.getElementById('clear-local-history-btn').addEventListener('click', async () => {
@@ -1460,12 +1602,14 @@ applyI18n();
     async function checkClipboardOnFocus() {
       if (!clipboardMonitorEnabled) return;
       if (!navigator.clipboard || !navigator.clipboard.readText) return;
+      if (userEditedTranscript) return; // ユーザーが手動編集中は上書きしない
       try {
         const text = await navigator.clipboard.readText();
         if (text && text !== lastClipboardText) {
           lastClipboardText = text;
+          clipboardAutoText = text;   // finalText には入れず別管理
           transcript.textContent = text;
-          finalText = text;
+          userEditedTranscript = false;
           sendBtn.disabled = false;
           statusEl.textContent = t('status_clipboard_fetched');
           statusEl.classList.remove('error');
@@ -1486,6 +1630,12 @@ applyI18n();
       if (document.visibilityState === 'visible') {
         lastClipboardText = '';
         setTimeout(checkClipboardOnFocus, 300);
+        // 連続認識中にバックグラウンドで停止していた場合は再起動
+        if (isContinuousMode() && !isListening && !manualStop) {
+          setTimeout(() => {
+            if (!isListening) recognition.start();
+          }, 500);
+        }
       }
     });
 
@@ -1556,6 +1706,21 @@ def clipboard():
     return jsonify({'status': 'ok', 'text': text})
 
 
+@app.route('/settings', methods=['GET'])
+def get_settings():
+    mode = request.args.get('mode')  # 'json' or 'db'
+    return jsonify({'status': 'ok', 'history_max': _get_server_history_max(mode)})
+
+
+@app.route('/settings', methods=['POST'])
+def post_settings():
+    req = request.get_json(silent=True) or {}
+    mode = req.get('mode')  # 'json' or 'db'
+    if 'history_max' in req:
+        _set_server_history_max(req['history_max'], mode)
+    return jsonify({'status': 'ok', 'history_max': _get_server_history_max(mode)})
+
+
 @app.route('/history', methods=['GET'])
 def get_history():
     mode = request.args.get('mode', 'db' if _use_mysql() else 'json')
@@ -1574,16 +1739,17 @@ def add_history():
         return jsonify({'status': 'error', 'message': 'テキストがありません'}), 400
     ts = req.get('ts', '')
     mode = req.get('mode', 'db' if _use_mysql() else 'json')
+    history_max = _get_server_history_max()
     if mode == 'db':
-        seq = _db_add_history(text, ts)
+        seq = _db_add_history(text, ts, history_max)
     else:
         data = _load_server_data()
         data['history'] = [e for e in data['history'] if e.get('text') != text]
-        seq = (data['seq'] + 1) % 1000
+        seq = (data['seq'] + 1) % history_max
         data['seq'] = seq
         data['history'].insert(0, {'seq': seq, 'text': text, 'ts': ts})
-        if len(data['history']) > HISTORY_MAX:
-            data['history'] = data['history'][:HISTORY_MAX]
+        if len(data['history']) > history_max:
+            data['history'] = data['history'][:history_max]
         _save_server_data(data)
     return jsonify({'status': 'ok', 'seq': seq})
 

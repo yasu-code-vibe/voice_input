@@ -39,6 +39,8 @@
   "history_storage_local": "ローカル",
   "history_storage_server_json": "サーバ(JSON)",
   "history_storage_server_db": "サーバ(DB)",
+  "history_max_title": "最大保存件数",
+  "history_max_desc": "ローカルストレージに保存する履歴の最大件数です。",
   "history_del_confirm_title": "削除時の確認ダイアログ",
   "history_del_confirm_desc": "🗑 ボタンをタップした際に確認ダイアログを表示します。",
   "history_clear_title": "ローカル履歴をクリア",

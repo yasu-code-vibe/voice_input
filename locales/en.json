@@ -39,6 +39,8 @@
   "history_storage_local": "Local",
   "history_storage_server_json": "Server(JSON)",
   "history_storage_server_db": "Server(DB)",
+  "history_max_title": "Max History Count",
+  "history_max_desc": "Maximum number of history entries saved in local storage.",
   "history_del_confirm_title": "Delete Confirmation Dialog",
   "history_del_confirm_desc": "Show a confirmation dialog when tapping the 🗑 button.",
   "history_clear_title": "Clear Local History",

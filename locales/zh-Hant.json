@@ -39,6 +39,8 @@
   "history_storage_local": "本機",
   "history_storage_server_json": "伺服器(JSON)",
   "history_storage_server_db": "伺服器(DB)",
+  "history_max_title": "最大儲存筆數",
+  "history_max_desc": "儲存在本機存儲中的歷史記錄最大筆數。",
   "history_del_confirm_title": "刪除確認對話框",
   "history_del_confirm_desc": "點擊🗑按鈕時顯示確認對話框。",
   "history_clear_title": "清除本機記錄",
