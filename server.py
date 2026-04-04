@@ -1739,7 +1739,7 @@ def add_history():
         return jsonify({'status': 'error', 'message': 'テキストがありません'}), 400
     ts = req.get('ts', '')
     mode = req.get('mode', 'db' if _use_mysql() else 'json')
-    history_max = _get_server_history_max()
+    history_max = _get_server_history_max(mode)
     if mode == 'db':
         seq = _db_add_history(text, ts, history_max)
     else:
