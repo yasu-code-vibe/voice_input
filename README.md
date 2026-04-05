@@ -1,3 +1,5 @@
+[English](README_en.md) | 日本語
+
 # 音声入力ツール
 
 スマホ（Android/iPhone）のマイクから音声入力し、PCのVS Code ClaudeCodeチャットへ転送するツール。
