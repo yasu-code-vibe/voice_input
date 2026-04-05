@@ -1,4 +1,4 @@
-[日本語](README_ja.md) | English
+English | [日本語](README_ja.md)
 
 # Voice Input Tool
 
