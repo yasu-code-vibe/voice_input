@@ -1,0 +1,13 @@
+services:
+  server:
+    build: .
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    environment:
+      - PYTHONUTF8=1
+      - OFFICIAL_MODE=1
+    volumes:
+      - ./cert.pem:/app/cert.pem:ro
+      - ./key.pem:/app/key.pem:ro
+    restart: unless-stopped
