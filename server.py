@@ -40,9 +40,6 @@ def _load_locale(lang='ja'):
 HISTORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'history_server.json')
 HISTORY_MAX = 1000
 
-# 公式モード（環境変数）
-OFFICIAL_MODE = os.environ.get('OFFICIAL_MODE', '0') == '1'
-
 # MySQL設定（環境変数）
 DB_HOST = os.environ.get('DB_HOST', '')
 DB_PORT = int(os.environ.get('DB_PORT', '3306'))
@@ -669,11 +666,6 @@ HTML = """<!DOCTYPE html>
       white-space: nowrap;
     }
     .btn:disabled { opacity: 0.4; cursor: default; }
-    .official-mode.mic-on #send-btn { opacity: 0.4 !important; pointer-events: none; cursor: default; }
-    .official-mode .seg-btn[data-val="server-json"],
-    .official-mode .seg-btn[data-val="server-db"] { opacity: 0.4 !important; pointer-events: none; cursor: default; }
-    .official-mode .resend-btn { opacity: 0.4 !important; pointer-events: none; cursor: default; }
-    .official-mode #pc-clip-btn { opacity: 0.4 !important; pointer-events: none; cursor: default; }
     #send-btn { background: #89b4fa; color: #1e1e2e; }
     #clear-btn { background: #45475a; color: #cdd6f4; }
     #pc-clip-btn { background: #a6e3a1; color: #1e1e2e; }
@@ -872,7 +864,6 @@ applyI18n();
     transcript.addEventListener('input', () => {
       userEditedTranscript = true;
       sendBtn.disabled = transcript.textContent.trim() === '';
-      updateOfficialSendBtn();
     });
 
     // --- ペースト時にHTMLを除去してプレーンテキストのみ挿入 ---
@@ -1205,15 +1196,6 @@ applyI18n();
           item.appendChild(tsEl);
         }
         span.addEventListener('click', async () => {
-          if (officialMode) {
-            // 公式モード：履歴テキストをクリップボードとtranscriptにコピー
-            try { await navigator.clipboard.writeText(text); } catch {}
-            lastClipboardText = text; // autopaste二重検知を防止
-            transcript.textContent = text;
-            userEditedTranscript = false;
-            sendBtn.disabled = false;
-            return;
-          }
           if (tsEl) {
             tsEl.style.display = tsEl.style.display === 'block' ? 'none' : 'block';
             if (tsEl.style.display === 'block') {
@@ -1276,7 +1258,6 @@ applyI18n();
         statusEl.textContent = t('status_recognizing');
         statusEl.classList.remove('error');
         document.body.classList.add('mic-on');
-        updateOfficialSendBtn();
       };
 
       recognition.onresult = (event) => {
@@ -1300,6 +1281,7 @@ applyI18n();
         micBtn.textContent = '🎤';
         document.body.classList.remove('mic-on');
         interimText = '';
+
         // 音声テキストがある場合のみ transcript を上書き（クリップボードテキストを守る）
         if (finalText) {
           transcript.textContent = finalText;
@@ -1336,7 +1318,6 @@ applyI18n();
           }
         }
         manualStop = false;
-        updateOfficialSendBtn();
       };
 
       recognition.onerror = (event) => {
@@ -1344,7 +1325,6 @@ applyI18n();
         micBtn.classList.remove('listening');
         micBtn.textContent = '🎤';
         document.body.classList.remove('mic-on');
-        updateOfficialSendBtn();
         // バックグラウンド移行による中断は連続認識モードでは正常動作
         if (isContinuousMode() && !manualStop && event.error === 'aborted') return;
         transcript.contentEditable = 'true';
@@ -1376,27 +1356,9 @@ applyI18n();
       }
     });
 
-    let officialMode = false;
-
-    function updateOfficialSendBtn() {
-      if (!officialMode) return;
-      if (isListening) {
-        sendBtn.textContent = t('main_btn_send');
-        sendBtn.disabled = true;
-      } else {
-        sendBtn.textContent = '💾 保存';
-        sendBtn.disabled = transcript.textContent.trim() === '';
-      }
-    }
-
     async function doSend(isResend = false) {
       const text = transcript.textContent.trim();
       if (!text) return;
-      // 公式モード：送信はスキップしローカル履歴のみ追加
-      if (officialMode) {
-        if (!isResend) addHistory(text);
-        return;
-      }
       sendBtn.disabled = true;
       try {
         const res = await fetch('/send', {
@@ -1456,7 +1418,6 @@ applyI18n();
       resultEl.textContent = '';
       statusEl.textContent = t('status_idle');
       statusEl.classList.remove('error');
-      updateOfficialSendBtn();
     });
 
     // --- クリップボード監視 ---
@@ -1704,23 +1665,6 @@ applyI18n();
       setTimeout(checkClipboardOnFocus, 100);
     }, { passive: true });
 
-    // 公式モード初期化
-    (async () => {
-      try {
-        const res = await fetch('/config');
-        const data = await res.json();
-        officialMode = data.official_mode;
-        if (officialMode) {
-          document.body.classList.add('official-mode');
-          // サーバーモードが選択されていればローカルに強制切り替え
-          if (isServerMode()) {
-            localStorage.setItem(HISTORY_STORAGE_KEY, 'local');
-            updateHistoryStorageCtrl();
-          }
-          updateOfficialSendBtn();
-        }
-      } catch { /* サーバーオフライン時は通常モードとして動作 */ }
-    })();
   </script>
 </body>
 </html>
@@ -1744,8 +1688,6 @@ def locale(lang):
 
 @app.route('/send', methods=['POST'])
 def send():
-    if OFFICIAL_MODE:
-        return jsonify({'status': 'ok'})
     data = request.get_json(silent=True)
     if not data or 'text' not in data:
         return jsonify({'status': 'error', 'message': 'テキストがありません'}), 400
@@ -1783,11 +1725,6 @@ def clipboard():
     return jsonify({'status': 'ok', 'text': text})
 
 
-@app.route('/config', methods=['GET'])
-def get_config():
-    return jsonify({'status': 'ok', 'official_mode': OFFICIAL_MODE})
-
-
 @app.route('/settings', methods=['GET'])
 def get_settings():
     mode = request.args.get('mode')  # 'json' or 'db'
@@ -1805,8 +1742,6 @@ def post_settings():
 
 @app.route('/history', methods=['GET'])
 def get_history():
-    if OFFICIAL_MODE:
-        return jsonify({'status': 'ok', 'history': []})
     mode = request.args.get('mode', 'db' if _use_mysql() else 'json')
     if mode == 'db':
         history = _db_get_history()
@@ -1817,8 +1752,6 @@ def get_history():
 
 @app.route('/history/add', methods=['POST'])
 def add_history():
-    if OFFICIAL_MODE:
-        return jsonify({'status': 'ok', 'seq': -1})
     req = request.get_json(silent=True) or {}
     text = req.get('text', '').strip()
     if not text:
@@ -1842,8 +1775,6 @@ def add_history():
 
 @app.route('/history/delete', methods=['POST'])
 def delete_history():
-    if OFFICIAL_MODE:
-        return jsonify({'status': 'ok'})
     req = request.get_json(silent=True) or {}
     text = req.get('text', '')
     mode = req.get('mode', 'db' if _use_mysql() else 'json')
