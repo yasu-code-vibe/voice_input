@@ -1,302 +1,294 @@
-[English](README_en.md) | 日本語
+[日本語](README_ja.md) | English
 
-# 音声入力ツール
+# Voice Input Tool
 
-スマホ（Android/iPhone）のマイクから音声入力し、PCのVS Code ClaudeCodeチャットへ転送するツール。
-PCのクリップボード内容をスマホへ取得する機能も備えています。
+A tool that captures voice input from your smartphone (Android/iPhone) microphone and transfers it to your PC clipboard.
+Also supports fetching PC clipboard content to your smartphone.
 
-## このアプリについて
+## About This App
 
-今すぐ AI に音声入力をしたい。
-でも PC にマイクが繋がっていない。
-そんなあなたのお悩み、即解決します。
+Want to use voice input with AI right now, but your PC has no microphone?
+This app solves that problem instantly.
 
-老若ニャンコもプログラミング、メール・・・、できます
-ニャンコも・・・？
-//できるか～～～～～ッ！
+Honestly, "Voice Input → AI" is a bit of an exaggeration.
+What it actually does is "Voice Input → PC Clipboard."
+But it will dramatically change how you interact with your computer.
 
-正直、「音声入力 → AI」は誇大表現です。
-実際は、「音声入力 → PCクリップボード」です。
-このアプリはあなたが体験する世界を劇的に変えます。
+## Supported Devices
 
-## 対応機種
-
-| 端末 | ブラウザ | 音声認識 | クリップボード自動取得 |
+| Device | Browser | Voice Recognition | Auto Clipboard Fetch |
 |---|---|---|---|
-| iPhone | Safari | ✅ | ❌（iOSセキュリティ制限） |
-| iPhone | Chrome | ✅ | ❌（iOSセキュリティ制限） |
+| iPhone | Safari | ✅ | ❌ (iOS security restriction) |
+| iPhone | Chrome | ✅ | ❌ (iOS security restriction) |
 | Android | Chrome | ✅ | ✅ |
 
-> **注意**: 音声認識はGoogleのクラウドサービスを使用するためインターネット接続が必要です。
+> **Note**: Voice recognition requires an internet connection as it uses Google's cloud service.
 
-## 仕組み
+## How It Works
 
-音声認識したテキストをPCのクリップボードに書き込む仕組みのため、**クリップボードからの貼り付け（Ctrl+V）に対応したあらゆるアプリケーションで利用できます**。
+Voice-recognized text is written to the PC clipboard, so it works with **any application that supports paste (Ctrl+V)**.
 
-- VS Code / テキストエディタ
-- Word / Excel などのOfficeアプリ
-- ブラウザのテキスト入力欄
-- Slack / チャットツール
-- ターミナル / コマンドライン
-- その他クリップボードにアクセスできるすべてのアプリ
+- VS Code / Text editors
+- Word / Excel and other Office apps
+- Browser text fields
+- Slack / Chat tools
+- Terminal / Command line
+- Any other app that can access the clipboard
 
-## セットアップ
+## Setup
 
 ```bash
 cd voice_input
 pip install -r requirements.txt
 ```
 
-## 起動
+## Starting the Server
 
-VS Code起動時に **SessionStartフック** で自動起動します。手動で起動する場合:
+The server starts automatically via the **SessionStart hook** when VS Code launches. To start manually:
 
 ```bash
-nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_input/server.log 2>&1 &
+nohup python server.py > server.log 2>&1 &
 ```
 
-起動するとPCのローカルIPアドレスが `server.log` に記録されます。
+On startup, the PC's local IP address is logged to `server.log`:
 
 ```
 ==================================================
-  音声入力サーバー起動
-  Android用 (HTTP) : http://192.168.x.x:5000
-  iPhone用 (HTTPS) : https://192.168.x.x:5001
+  Voice Input Server Started
+  Android (HTTP) : http://192.168.x.x:5000
+  iPhone  (HTTPS): https://192.168.x.x:5001
 ==================================================
 ```
 
-## アクセスURL
+## Access URLs
 
-| 端末 | URL |
+| Device | URL |
 |---|---|
 | Android | `http://192.168.x.x:5000` |
-| iPhone | `https://192.168.x.x:5001`（証明書設定が必要、下記参照） |
+| iPhone | `https://192.168.x.x:5001` (requires certificate setup, see below) |
 
-## 画面レイアウト
+## Screen Layout
 
-- **上部**：履歴エリア（古いものが上、新しいものが下）
-- **下部**：操作エリア（マイク・テキスト・送信/クリア・PCクリップボード取得・モード切替）
+- **Top**: History area (oldest at top, newest at bottom)
+- **Bottom**: Controls (mic, text, send/clear, PC clipboard fetch, mode switch)
 
-## 使い方
+## Usage
 
-1. VS Codeを起動（サーバーが自動起動）
-2. スマホで上記URLにアクセス（AndroidはChrome、iPhoneはSafari or Chrome）
-3. 🎤 ボタンをタップして話す
-4. 話し終わると自動でPCのクリップボードへ送信され、履歴の下端に追加される
-5. VS CodeのClaudeCodeチャット欄をクリックして `Ctrl+V` で貼り付け
+1. Launch VS Code (server starts automatically)
+2. Open the URL above on your smartphone (Android: Chrome / iPhone: Safari or Chrome)
+3. Tap the 🎤 button and speak
+4. Text is automatically sent to the PC clipboard and added to the history
+5. Click the Claude Code chat field in VS Code and press `Ctrl+V` to paste
 
-### マイクボタンの移動
+### Mic Button Position
 
-画面下部の「🔄 モード切替」ボタンで2つのモードを切り替えられます。設定はlocalStorageに保存され次回起動時も維持されます。
+Use the "🔄 Mode Switch" button to toggle between two modes. Settings are saved in localStorage.
 
-| モード | 操作 |
+| Mode | Behavior |
 |---|---|
-| **スナップモード**（デフォルト） | マイクボタンを左右にドラッグすると左右にスナップ移動 |
-| **フローティングモード** | マイクボタンを画面上の好きな位置にドラッグして自由移動 |
+| **Snap Mode** (default) | Drag the mic button left/right to snap it to either side |
+| **Floating Mode** | Drag the mic button anywhere on the screen |
 
-### スマホクリップボードの自動取得
+### Auto Smartphone Clipboard Fetch
 
-他のアプリでテキストをコピーしてからブラウザに戻ると、クリップボードの内容が自動的にテキスト表示領域に表示されます。
+When you copy text in another app and switch back to the browser, the clipboard content is automatically displayed in the text area.
 
-- コピー内容が前回と変わっている場合のみ表示されます
-- **対応環境**: Android Chrome（動作確認済み）
+- Only triggers when the clipboard content has changed
+- **Supported**: Android Chrome (confirmed working)
 
-### PCクリップボードをスマホへ取得
+### Fetch PC Clipboard to Smartphone
 
-「📥 PCクリップボードを取得」ボタンをタップすると、PCのクリップボード内容が履歴に追加されます。
+Tap the "📥 Fetch PC Clipboard" button to add PC clipboard content to the history.
 
-- **50文字以下**：プレビュー領域にも表示され、送信ボタンが有効になります
-- **51文字以上**：履歴のみ追加（プレビューは変更しません）
-- **同じ文章を再取得した場合**：重複エントリは作成されず、連番のみ更新されます
+- **50 characters or less**: Also shown in the preview area with the send button enabled
+- **51 characters or more**: Added to history only (preview unchanged)
+- **Duplicate content**: No duplicate entry is created; only the sequence number is updated
 
-### 履歴
+### History
 
-- 最大1000件をブラウザのlocalStorageに保存（端末ごとに独立）
-- 古いものが上・新しいものが下に表示、送信のたびに下端へ自動スクロール
-- 連番（000〜999）付きで表示
-- 再送・削除が可能
-- 同じテキストを送信・取得した場合は既存エントリを削除して末尾に移動し、連番を更新
+- Up to 1000 entries saved in browser localStorage (per device)
+- Displayed oldest-first, newest at bottom; auto-scrolls on each entry
+- Shown with sequence numbers (000–999)
+- Resend and delete supported
+- Sending the same text again removes the existing entry and re-adds it at the bottom
 
-## サーバー履歴の保存先
+## Server History Storage
 
-環境変数 `DB_HOST` の設定値によって、サーバー共有履歴の保存先が切り替わります。
+The server history storage location depends on the `DB_HOST` environment variable.
 
-| `DB_HOST` | 保存先 |
+| `DB_HOST` | Storage |
 |---|---|
-| 未設定（デフォルト） | `history_server.json`（ローカルファイル） |
-| ホスト名またはIPアドレスを設定 | MySQL |
+| Not set (default) | `history_server.json` (local file) |
+| Hostname or IP address | MySQL |
 
-MySQLを使用する場合は以下の環境変数を設定してサーバーを起動してください。
+To use MySQL, set the following environment variables before starting the server:
 
-| 環境変数 | デフォルト値 | 説明 |
+| Variable | Default | Description |
 |---|---|---|
-| `DB_HOST` | （未設定） | MySQLのホスト名またはIPアドレス |
-| `DB_PORT` | `3306` | MySQLのポート番号 |
-| `DB_NAME` | `voice_input` | データベース名 |
-| `DB_USER` | `voice_input` | ユーザー名 |
-| `DB_PASSWORD` | `voice_input_pass` | パスワード |
+| `DB_HOST` | (not set) | MySQL hostname or IP address |
+| `DB_PORT` | `3306` | MySQL port number |
+| `DB_NAME` | `voice_input` | Database name |
+| `DB_USER` | `voice_input` | Username |
+| `DB_PASSWORD` | `voice_input_pass` | Password |
 
 ```bash
 export DB_HOST=localhost
-nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_input/server.log 2>&1 &
+nohup python server.py > server.log 2>&1 &
 ```
 
-## 停止
+## Stopping the Server
 
-手動で停止する場合（PIDファイルを使用してserver.pyのみ停止）:
+To stop manually (stops only server.py using the PID file):
 
 ```bash
-pid=$(cat d:/workspace_git/voice_input/server.pid); taskkill //PID $pid //F
+pid=$(cat server.pid); kill $pid
 ```
 
 ---
 
-## 初回設定: Android
+## Initial Setup: Android
 
-HTTP接続でのマイク使用を許可するための設定（1回だけ必要）:
+One-time setup to allow microphone access over HTTP:
 
-1. AndroidのChromeで `chrome://flags/#unsafely-treat-insecure-origin-as-secure` を開く
-2. テキストボックスに `http://192.168.x.x:5000`（サーバー起動時に表示されるURL）を入力
-3. **Relaunch** をタップしてChromeを再起動
+1. Open `chrome://flags/#unsafely-treat-insecure-origin-as-secure` in Android Chrome
+2. Enter `http://192.168.x.x:5000` (the URL shown when the server starts) in the text box
+3. Tap **Relaunch** to restart Chrome
 
-### セキュリティについて
+### Security Notice
 
-**自宅の閉じたWi-Fi内での使用であれば実用上問題ありません。**
+**This is safe for practical use within your home's closed Wi-Fi network.**
 
-この設定は「指定したURLをHTTPSと同等に扱う」ものです。通常HTTPはセキュアでないため、マイク等のセンシティブなAPIが使えません。
+This setting treats the specified URL as equivalent to HTTPS. Normally, HTTP cannot access sensitive APIs like the microphone.
 
-- **通信の盗聴リスク**：HTTP通信は暗号化されていないため、同じWi-Fi上の第三者に音声テキストが傍受される可能性があります
-- **設定の影響範囲**：指定したURL（`http://192.168.x.x:5000`）のみに限定されます。他のサイトには影響しません
-- **フラグ自体の性質**：`chrome://flags` は実験的な機能で、将来的にChromeのアップデートで動作が変わる可能性があります
+- **Eavesdropping risk**: HTTP traffic is unencrypted, so audio text could be intercepted by others on the same Wi-Fi
+- **Scope**: Limited to the specified URL (`http://192.168.x.x:5000`) only — no effect on other sites
+- **Flag behavior**: `chrome://flags` are experimental features that may change with future Chrome updates
 
-自宅Wi-Fiなら安全な理由：
-- ルーターの外に通信が出ない
-- 同一ネットワークに信頼できない端末がいない
-- 用途が音声入力テキストの転送のみ（機密情報でなければリスク低）
+Why it's safe on home Wi-Fi:
+- Traffic does not leave the router
+- No untrusted devices on the network
+- Use case is limited to voice text transfer (low risk if not confidential)
 
 ---
 
-## 初回設定: iPhone
+## Initial Setup: iPhone
 
-### 証明書の生成（PC側）
+### Generate a Certificate (on PC)
 
 ```bash
-cd d:/workspace_git/voice_input
+cd voice_input
 openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 3650 -nodes -subj "//CN=192.168.x.x"
 ```
 
-`192.168.x.x` はPCのIPアドレスに合わせてください（`server.log` に表示されます）。
+Replace `192.168.x.x` with your PC's IP address (shown in `server.log`).
 
-> PCのIPアドレスが変わった場合は証明書を作り直してください。
+> If your PC's IP address changes, regenerate the certificate.
 
-### 証明書生成後の動作
+### After Generating the Certificate
 
-`cert.pem` と `key.pem` が `voice_input/` フォルダに存在する場合、サーバー起動時に自動的に以下が有効になります：
+When `cert.pem` and `key.pem` exist in the `voice_input/` folder, the server automatically enables:
 
-- **ポート5000（HTTP）** → `/cert` エンドポイントで証明書ファイルを公開
-- **ポート5001（HTTPS）** → iPhoneからアクセス可能
+- **Port 5000 (HTTP)** → Certificate file served at `/cert` endpoint
+- **Port 5001 (HTTPS)** → Accessible from iPhone
 
-証明書ファイルを削除するとHTTPのみ（ポート5000）に戻ります。
+Deleting the certificate files reverts to HTTP only (port 5000).
 
-### iOSの証明書インストール手順（初回のみ）
+### iOS Certificate Installation (first time only)
 
-**Step 1: 証明書をダウンロードする**
+**Step 1: Download the Certificate**
 
-1. iPhoneとPCが同じWi-Fiに接続されていることを確認
-2. iPhoneの **Safari または Chrome** を開く
-3. アドレスバーに以下を入力してアクセス:
+1. Make sure your iPhone and PC are on the same Wi-Fi
+2. Open **Safari or Chrome** on your iPhone
+3. Navigate to:
 
 ```
 http://192.168.x.x:5000/cert
 ```
 
-4. 「"192.168.x.x"からダウンロードしますか？」→「許可」をタップ
-5. 画面上部またはダウンロードアイコンから「設定で開く」をタップ
+4. Tap **Allow** when prompted to download from "192.168.x.x"
+5. Tap "Open in Settings" from the top of the screen or the download icon
 
-**Step 2: プロファイルをインストールする**
+**Step 2: Install the Profile**
 
-1. ダウンロード後、設定アプリを開く
-2. 設定 → 一般 → **VPNとデバイス管理** を開く
-3. 「ダウンロード済みプロファイル」に表示された証明書をタップ
-4. 右上の「インストール」をタップ
-5. 警告画面で再度「インストール」をタップ → 「完了」
+1. Open the Settings app
+2. Go to Settings → General → **VPN & Device Management**
+3. Tap the certificate listed under "Downloaded Profile"
+4. Tap **Install** in the top right
+5. Tap **Install** again on the warning screen → **Done**
 
-**Step 3: 証明書を信頼する**
+**Step 3: Trust the Certificate**
 
-1. 設定 → 一般 → **情報** → **証明書信頼設定** を開く
-2. インストールした証明書のトグルをONにする
-3. 警告ダイアログで「続ける」をタップ
+1. Go to Settings → General → **About** → **Certificate Trust Settings**
+2. Toggle on the installed certificate
+3. Tap **Continue** on the warning dialog
 
-以上で `https://192.168.x.x:5001` にアクセスできるようになります。
-
----
-
-## サーバに接続できない環境での利用
-
-サーバとスマホが接続できない環境では、スマホのブラウザをリロードするとサーバから voice_input アプリを再取得できなくなり、このアプリは動作しなくなります。
-
-そのような場合、voice_input 公式サーバからアプリをダウンロードできます。
-公式サーバから配信されるアプリは**公式モード**で動作します。
-
-公式モードでは以下の機能が制限されます：
-
-1. 送信ボタンが無効化されます（PCクリップボードへの貼り付けはできません）
-2. サーバーへの履歴保存（JSON保存・DB保存）が無効化されます
-3. スマホにのみ履歴が保存されます
-
-**メモアプリとしてご利用ください。**
-
-> comming soon
+You can now access `https://192.168.x.x:5001`.
 
 ---
 
-## 注意事項
+## Using Without a Server Connection
 
-- PCとスマホが同じWi-Fiに接続されている必要があります
-- 音声認識はGoogleの音声認識サービスを使用するため、インターネット接続が必要です
-- Web Speech APIはAndroid Chrome・iPhone Safari・PC版Chromeで動作します
-- iPhoneはSafariまたはChromeを使用してください
-- 履歴はブラウザのlocalStorageに保存されるため、端末・URLが変わるとリセットされます
+If the smartphone cannot connect to the server, reloading the browser will fail to retrieve the app, making it unavailable.
 
-## 制限事項
+In such cases, the app can be downloaded from the voice_input official server.
+The app served from the official server runs in **Official Mode**.
 
-### サーバー起動環境によるクリップボード制限
+In Official Mode, the following features are restricted:
 
-| 環境 | クリップボード書き込み (`/send`) | クリップボード読み取り (`/clipboard`) |
+1. The send button is disabled (PC clipboard paste is not available)
+2. Server history saving (JSON / DB) is disabled
+3. History is saved on the smartphone only
+
+**Use it as a memo app.**
+
+> Coming soon
+
+---
+
+## Notes
+
+- PC and smartphone must be on the same Wi-Fi network
+- Voice recognition requires an internet connection (uses Google's speech recognition service)
+- Web Speech API works on Android Chrome, iPhone Safari, and desktop Chrome
+- iPhone users should use Safari or Chrome
+
+## Limitations
+
+### Clipboard Restrictions by Server Environment
+
+| Environment | Clipboard Write (`/send`) | Clipboard Read (`/clipboard`) |
 |---|---|---|
-| Windowsネイティブ | ✅ 動作する | ✅ 動作する |
-| WSL2 | ⚠️ `clip.exe` がPATHに存在する場合のみ動作 | ⚠️ `powershell.exe` がPATHに存在する場合のみ動作 |
-| Dockerコンテナ | ❌ 動作しない | ❌ 動作しない |
+| Windows (native) | ✅ Works | ✅ Works |
+| WSL2 | ⚠️ Works only if `clip.exe` is in PATH | ⚠️ Works only if `powershell.exe` is in PATH |
+| Docker container | ❌ Does not work | ❌ Does not work |
 
-#### Dockerコンテナで動作しない理由
+#### Why Docker Containers Don't Work
 
-サーバーはコンテナ内の隔離されたLinux環境で動作するため、ホストOS（Windows）のクリップボードにアクセスする手段がありません。
+The server runs in an isolated Linux container and has no way to access the host OS (Windows) clipboard.
 
-| 手段 | 結果 | 理由 |
+| Method | Result | Reason |
 |---|---|---|
-| `clip.exe` / `powershell.exe` | ❌ 使用不可 | WindowsのCLIツールはコンテナ内に存在しない |
-| `xclip` | ❌ 使用不可 | GUIディスプレイ（`DISPLAY`環境変数）がないため動作しない |
-| `pyperclip` | ❌ 使用不可 | 上記ツールへの依存のため同様に失敗する |
+| `clip.exe` / `powershell.exe` | ❌ Unavailable | Windows CLI tools do not exist inside the container |
+| `xclip` | ❌ Unavailable | No GUI display (`DISPLAY` env var) available |
+| `pyperclip` | ❌ Unavailable | Depends on the above tools |
 
-### スマホクリップボードの自動取得
+### Auto Smartphone Clipboard Fetch
 
-voice_input 以外のアプリ（ブラウザでURLをコピー、など）でコピーしたテキストを、voice_input に切り替えた際に自動で取得する機能です。
-
-| 環境 | 動作 | 理由 |
+| Environment | Works | Reason |
 |---|---|---|
-| Android Chrome | ✅ 動作する | Clipboard API対応 |
-| iPhone Safari | ❌ 動作しない | iOSのセキュリティ制限（後述） |
-| iPhone Chrome | ❌ 動作しない | 同上 |
+| Android Chrome | ✅ | Clipboard API supported |
+| iPhone Safari | ❌ | iOS security restriction |
+| iPhone Chrome | ❌ | Same as above |
 
-#### iPhoneで動作しない理由
+#### Why It Doesn't Work on iPhone
 
-本アプリのクリップボード取得には2種類の仕組みがあります。
+The app uses two clipboard mechanisms:
 
-| 機能 | 仕組み | iPhoneでの動作 |
+| Feature | Mechanism | iPhone |
 |---|---|---|
-| 📥 PCクリップボードを取得 | スマホ→サーバー(Python)→PC OS API | ✅ 動作する |
-| スマホクリップボード自動取得 | ブラウザJS → スマホ OS | ❌ 動作しない |
+| 📥 Fetch PC Clipboard | Smartphone → Server (Python) → PC OS API | ✅ Works |
+| Auto smartphone clipboard fetch | Browser JS → Smartphone OS | ❌ Does not work |
 
-「PCクリップボードを取得」はPython（ネイティブアプリ）がPCのOSに直接アクセスするため制限を受けません。一方、スマホ側クリップボードの読み取りはブラウザ内のJavaScriptから行うため、ブラウザのサンドボックス制限を受けます。iOSはこの制限が特に厳しく、ユーザー操作のたびに確認が必要で、アプリに戻った際の自動取得はできません。Androidは一度許可すれば自動取得が可能です。
+"Fetch PC Clipboard" works because Python accesses the PC OS directly without browser restrictions. Auto-fetching the smartphone clipboard uses JavaScript within the browser, which is subject to browser sandbox restrictions. iOS enforces strict limits — requiring user confirmation each time — making automatic fetch on app focus impossible. Android allows automatic fetch once permission is granted.
 
-iPhoneでPCのクリップボード内容を取得したい場合は「📥 PCクリップボードを取得」ボタンを使用してください。
+To get PC clipboard content on iPhone, use the "📥 Fetch PC Clipboard" button.
