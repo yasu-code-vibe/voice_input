@@ -141,6 +141,52 @@ export DB_HOST=localhost
 nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_input/server.log 2>&1 &
 ```
 
+## Docker セットアップ（MySQL）
+
+MySQL を Docker コンテナで起動する手順です。
+
+### Docker のインストール
+
+[Docker Desktop](https://www.docker.com/products/docker-desktop/) をインストールしてください。
+
+### コンテナの作成と起動
+
+```bash
+cd voice_input
+docker compose up -d
+```
+
+初回実行時はイメージのダウンロードが行われます。
+
+### 起動確認
+
+```bash
+docker compose ps
+```
+
+`mysql` サービスが `healthy` になったらサーバーを起動できます。
+
+### コンテナの停止
+
+```bash
+docker compose down
+```
+
+データを削除する場合（ボリュームも削除）：
+
+```bash
+docker compose down -v
+```
+
+### MySQL モードでサーバーを起動
+
+```bash
+export DB_HOST=127.0.0.1
+nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_input/server.log 2>&1 &
+```
+
+---
+
 ## 停止
 
 手動で停止する場合（PIDファイルを使用してserver.pyのみ停止）:

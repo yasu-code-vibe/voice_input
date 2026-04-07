@@ -136,6 +136,52 @@ export DB_HOST=localhost
 nohup python server.py > server.log 2>&1 &
 ```
 
+## Docker Setup (MySQL)
+
+Run MySQL in a Docker container.
+
+### Install Docker
+
+Install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+
+### Create and Start the Container
+
+```bash
+cd voice_input
+docker compose up -d
+```
+
+The image will be downloaded on first run.
+
+### Check Status
+
+```bash
+docker compose ps
+```
+
+The server can be started once the `mysql` service shows `healthy`.
+
+### Stop the Container
+
+```bash
+docker compose down
+```
+
+To delete data (including volumes):
+
+```bash
+docker compose down -v
+```
+
+### Start the Server in MySQL Mode
+
+```bash
+export DB_HOST=localhost
+nohup python server.py > server.log 2>&1 &
+```
+
+---
+
 ## Stopping the Server
 
 To stop manually (stops only server.py using the PID file):
