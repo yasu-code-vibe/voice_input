@@ -149,6 +149,16 @@ MySQL を Docker コンテナで起動する手順です。
 
 [Docker Desktop](https://www.docker.com/products/docker-desktop/) をインストールしてください。
 
+### 事前確認：TCPポートの空き確認
+
+`docker compose up` の前に、ポート 3306 が使用されていないことを確認してください。
+
+```bash
+netstat -ano | findstr :3306
+```
+
+出力がある場合は、既に MySQL などが起動しています。停止してから `docker compose up` を実行してください。
+
 ### コンテナの作成と起動
 
 ```bash

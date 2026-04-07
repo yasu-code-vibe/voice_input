@@ -144,6 +144,16 @@ Run MySQL in a Docker container.
 
 Install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 
+### Check That the TCP Port Is Available
+
+Before running `docker compose up`, verify that port 3306 is not already in use.
+
+```bash
+netstat -ano | findstr :3306
+```
+
+If any output appears, another process (e.g. a local MySQL instance) is using the port. Stop it before running `docker compose up`.
+
 ### Create and Start the Container
 
 ```bash
