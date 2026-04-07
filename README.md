@@ -14,6 +14,8 @@ Honestly, "Voice Input → AI" is a bit of an exaggeration.
 What it actually does is "Voice Input → PC Clipboard."
 But it will dramatically change how you interact with your computer.
 
+![voice_input](images/voice_input_image.png)
+
 ## Supported Devices
 
 | Device | Browser | Voice Recognition | Auto Clipboard Fetch |
