@@ -44,7 +44,7 @@ pip install -r requirements.txt
 
 ## Starting the Server
 
-The server starts automatically via the **SessionStart hook** when VS Code launches. To start manually:
+Start the server with the following command:
 
 ```bash
 nohup python server.py > server.log 2>&1 &
@@ -74,7 +74,7 @@ On startup, the PC's local IP address is logged to `server.log`:
 
 ## Usage
 
-1. Launch VS Code (server starts automatically)
+1. Start the server (run the command above)
 2. Open the URL above on your smartphone (Android: Chrome / iPhone: Safari or Chrome)
 3. Tap the 🎤 button and speak
 4. Text is automatically sent to the PC clipboard and added to the history

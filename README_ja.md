@@ -49,7 +49,7 @@ pip install -r requirements.txt
 
 ## 起動
 
-VS Code起動時に **SessionStartフック** で自動起動します。手動で起動する場合:
+以下のコマンドで起動してください:
 
 ```bash
 nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_input/server.log 2>&1 &
@@ -79,7 +79,7 @@ nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_inp
 
 ## 使い方
 
-1. VS Codeを起動（サーバーが自動起動）
+1. サーバーを起動する（上記コマンドを実行）
 2. スマホで上記URLにアクセス（AndroidはChrome、iPhoneはSafari or Chrome）
 3. 🎤 ボタンをタップして話す
 4. 話し終わると自動でPCのクリップボードへ送信され、履歴の下端に追加される
