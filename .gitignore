@@ -5,3 +5,6 @@ key.pem
 history_server.json
 __pycache__/
 *.pyc
+
+qr_android.png
+qr_ios.png
