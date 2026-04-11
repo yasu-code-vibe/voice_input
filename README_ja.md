@@ -79,6 +79,8 @@ nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_inp
 
 ## アクセスURL
 
+スマホのブラウザから、PCと同じ Wi-Fi 上の以下の URL にアクセスしてください。
+
 | 端末 | URL |
 |---|---|
 | Android | `http://192.168.x.x:5000` |

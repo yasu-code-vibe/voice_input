@@ -74,6 +74,8 @@ On startup, the PC's local IP address is logged to `server.log`:
 
 ## Access URLs
 
+Open the following URL in your smartphone browser.
+
 | Device | URL |
 |---|---|
 | Android | `http://192.168.x.x:5000` |
