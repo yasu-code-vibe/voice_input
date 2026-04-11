@@ -539,6 +539,43 @@ HTML = """<!DOCTYPE html>
     .del-btn:active { opacity: 0.7; }
     .seq-local { color: #89b4fa; font-weight: bold; }
     .seq-server { color: #f9e2af; font-weight: bold; }
+    #qr-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    #qr-overlay.show { display: flex; }
+    #qr-dialog {
+      background: #313244;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      width: min(320px, 90vw);
+    }
+    #qr-dialog h3 {
+      margin: 0 0 14px;
+      color: #cdd6f4;
+      font-size: 1rem;
+    }
+    #qr-dialog img {
+      width: 100%;
+      max-width: 260px;
+      border-radius: 8px;
+    }
+    #qr-close {
+      margin-top: 14px;
+      padding: 10px 28px;
+      background: #585b70;
+      color: #cdd6f4;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
     #confirm-overlay {
       display: none;
       position: fixed;
@@ -799,6 +836,14 @@ HTML = """<!DOCTYPE html>
       </div>
 
       <div class="settings-section">
+        <div class="settings-label" data-i18n="section_qr">QR コード</div>
+        <div class="settings-row-sub" style="margin: 4px 0 10px;" data-i18n="qr_desc">スマホでスキャンしてアプリを開いてください。</div>
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+          <button class="btn" id="qr-android-btn" data-i18n="qr_btn_android">📱 Android</button>
+          <button class="btn" id="qr-ios-btn" data-i18n="qr_btn_ios">🍎 iPhone</button>
+        </div>
+      </div>
+      <div class="settings-section">
         <div class="settings-label" data-i18n="section_info">アプリ情報</div>
         <div class="settings-row">
           <div class="settings-row-title" data-i18n="info_version">バージョン</div>
@@ -808,6 +853,15 @@ HTML = """<!DOCTYPE html>
       </div><!-- /#settings-body -->
     </div>
 
+  </div>
+
+  <div id="qr-overlay">
+    <div id="qr-dialog">
+      <h3 id="qr-title"></h3>
+      <img id="qr-img" src="" alt="QR Code">
+      <br>
+      <button id="qr-close" data-i18n="qr_close">閉じる</button>
+    </div>
   </div>
 
   <div id="confirm-overlay">
@@ -1479,6 +1533,27 @@ applyI18n();
       });
     });
     updateDelConfirmCtrl();
+
+    // --- QR コード表示 ---
+    const qrOverlay = document.getElementById('qr-overlay');
+    const qrImg    = document.getElementById('qr-img');
+    const qrTitle  = document.getElementById('qr-title');
+    document.getElementById('qr-android-btn').addEventListener('click', () => {
+      qrTitle.textContent = t('qr_btn_android');
+      qrImg.src = '/qr_android.png';
+      qrOverlay.classList.add('show');
+    });
+    document.getElementById('qr-ios-btn').addEventListener('click', () => {
+      qrTitle.textContent = t('qr_btn_ios');
+      qrImg.src = '/qr_ios.png';
+      qrOverlay.classList.add('show');
+    });
+    document.getElementById('qr-close').addEventListener('click', () => {
+      qrOverlay.classList.remove('show');
+    });
+    qrOverlay.addEventListener('click', (e) => {
+      if (e.target === qrOverlay) qrOverlay.classList.remove('show');
+    });
 
     // --- 言語切替 ---
     const LANG_KEY = 'lang';

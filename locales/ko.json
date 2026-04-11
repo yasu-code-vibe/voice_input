@@ -60,6 +60,12 @@
   "section_language": "언어",
   "language_title": "표시 언어",
 
+  "section_qr": "QR 코드",
+  "qr_desc": "스마트폰으로 스캔하여 앱을 열어주세요.",
+  "qr_btn_android": "📱 Android",
+  "qr_btn_ios": "🍎 iPhone",
+  "qr_close": "닫기",
+
   "section_info": "앱 정보",
   "info_version": "버전",
 

@@ -60,6 +60,12 @@
   "section_language": "語言",
   "language_title": "顯示語言",
 
+  "section_qr": "QR 碼",
+  "qr_desc": "用智慧型手機掃描以開啟應用程式。",
+  "qr_btn_android": "📱 Android",
+  "qr_btn_ios": "🍎 iPhone",
+  "qr_close": "關閉",
+
   "section_info": "應用程式資訊",
   "info_version": "版本",
 

@@ -60,6 +60,12 @@
   "section_language": "语言",
   "language_title": "显示语言",
 
+  "section_qr": "二维码",
+  "qr_desc": "用智能手机扫描以打开应用。",
+  "qr_btn_android": "📱 Android",
+  "qr_btn_ios": "🍎 iPhone",
+  "qr_close": "关闭",
+
   "section_info": "应用信息",
   "info_version": "版本",
 

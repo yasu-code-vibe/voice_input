@@ -60,6 +60,12 @@
   "section_language": "Language",
   "language_title": "Display Language",
 
+  "section_qr": "QR Code",
+  "qr_desc": "Scan with your smartphone to open the app.",
+  "qr_btn_android": "📱 Android",
+  "qr_btn_ios": "🍎 iPhone",
+  "qr_close": "Close",
+
   "section_info": "App Info",
   "info_version": "Version",
 
