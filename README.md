@@ -5,6 +5,10 @@ English | [日本語](README_ja.md)
 A tool that captures voice input from your smartphone (Android/iPhone) microphone and transfers it to your PC clipboard.
 Also supports fetching PC clipboard content to your smartphone.
 
+| Main Screen | Settings Screen |
+|:---:|:---:|
+| ![Main Screen](images/Screenshot_main_en.png) | ![Settings Screen](images/Screenshot_setting_en.png) |
+
 ## About This App
 
 Want to use voice input with AI right now, but your PC has no microphone?

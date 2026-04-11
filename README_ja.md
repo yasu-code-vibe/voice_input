@@ -5,6 +5,10 @@
 スマホ（Android/iPhone）のマイクから音声入力し、PCのVS Code ClaudeCodeチャットへ転送するツール。
 PCのクリップボード内容をスマホへ取得する機能も備えています。
 
+| メイン画面 | 設定画面 |
+|:---:|:---:|
+| ![メイン画面](images/Screenshot_main_ja.png) | ![設定画面](images/Screenshot_setting_ja.png) |
+
 ## このアプリについて
 
 今すぐ AI に音声入力をしたい。
