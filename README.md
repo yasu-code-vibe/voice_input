@@ -77,6 +77,18 @@ On startup, the PC's local IP address is logged to `server.log`:
 | Android | `http://192.168.x.x:5000` |
 | iPhone | `https://192.168.x.x:5001` (requires certificate setup, see below) |
 
+### Access via QR Code
+
+When the server starts, QR code image URLs are shown in the CLI.
+
+```
+  QR (Android) : http://192.168.x.x:5000/qr_android.png
+  QR (iPhone)  : http://192.168.x.x:5000/qr_ios.png
+```
+
+Open the URL in a PC browser and scan the QR code with your smartphone camera to connect.
+You can also display the QR code from the "QR Code" section in the settings screen.
+
 ## Screen Layout
 
 - **Top**: History area (oldest at top, newest at bottom)

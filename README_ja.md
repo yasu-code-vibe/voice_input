@@ -82,6 +82,18 @@ nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_inp
 | Android | `http://192.168.x.x:5000` |
 | iPhone | `https://192.168.x.x:5001`（証明書設定が必要、下記参照） |
 
+### QR コードでアクセスする
+
+サーバー起動時に QR コード画像の URL が CLI に表示されます。
+
+```
+  QR (Android) : http://192.168.x.x:5000/qr_android.png
+  QR (iPhone)  : http://192.168.x.x:5000/qr_ios.png
+```
+
+PC のブラウザでこの URL を開き、スマホのカメラで QR コードを読み取るとアクセスできます。
+また、設定画面の「QR コード」セクションからも表示できます。
+
 ## 画面レイアウト
 
 - **上部**：履歴エリア（古いものが上、新しいものが下）
