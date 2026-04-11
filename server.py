@@ -1500,6 +1500,7 @@ applyI18n();
         } catch (e) { /* ネットワークエラー時はそのまま */ }
       }
       langSelect.value = lang;
+      updateHistoryStorageCtrl();
     }
 
     langSelect.addEventListener('change', () => {
