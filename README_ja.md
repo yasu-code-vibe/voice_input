@@ -71,7 +71,9 @@ nohup python d:/workspace_git/voice_input/server.py > d:/workspace_git/voice_inp
 ==================================================
   音声入力サーバー起動
   Android用 (HTTP) : http://192.168.x.x:5000
+  QR (Android)     : http://192.168.x.x:5000/qr_android.png
   iPhone用 (HTTPS) : https://192.168.x.x:5001
+  QR (iPhone)      : http://192.168.x.x:5000/qr_ios.png
 ==================================================
 ```
 

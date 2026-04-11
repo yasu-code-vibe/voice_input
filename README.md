@@ -65,8 +65,10 @@ On startup, the PC's local IP address is logged to `server.log`:
 ```
 ==================================================
   Voice Input Server Started
-  Android (HTTP) : http://192.168.x.x:5000
-  iPhone  (HTTPS): https://192.168.x.x:5001
+  Android (HTTP)   : http://192.168.x.x:5000
+  QR (Android)     : http://192.168.x.x:5000/qr_android.png
+  iPhone  (HTTPS)  : https://192.168.x.x:5001
+  QR (iPhone)      : http://192.168.x.x:5000/qr_ios.png
 ==================================================
 ```
 
