@@ -57,7 +57,7 @@ cd voice_input
 pip install -r requirements.txt
 ```
 
-## 起動
+## ローカルサーバー起動
 
 以下のコマンドで起動してください:
 

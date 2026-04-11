@@ -52,7 +52,7 @@ cd voice_input
 pip install -r requirements.txt
 ```
 
-## Starting the Server
+## Starting the Local Server
 
 Start the server with the following command:
 
