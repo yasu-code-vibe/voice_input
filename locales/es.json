@@ -1,0 +1,90 @@
+{
+  "app_title": "🎤 Entrada de voz→IA",
+  "app_settings_title": "Ajustes",
+  "app_settings_btn_title": "Ajustes",
+
+  "main_history_title": "📜 Historial",
+  "main_status_idle": "Toca el botón del micrófono y habla",
+  "main_btn_send": "📋 Enviar",
+  "main_btn_clear": "🗑 Borrar",
+  "main_btn_pc_clip": "📥 Obtener portapapeles del PC",
+  "main_btn_server_clip": "📥 Obtener portapapeles del servidor",
+  "main_transcript_placeholder": "El texto aparecerá aquí",
+  "main_mic_btn_title": "Iniciar/Detener reconocimiento de voz",
+
+  "settings_back": "◀ Volver",
+  "settings_title": "Ajustes",
+
+  "section_input": "Entrada",
+  "suffix_title": "Añadir al final del texto",
+  "suffix_desc": "Se añade al final al enviar al portapapeles",
+  "suffix_none": "Ninguno",
+  "suffix_space": "Espacio",
+  "suffix_newline": "Nueva línea",
+
+  "section_mic": "Micrófono",
+  "mic_mode_title": "Modo del botón de micrófono",
+  "mic_mode_desc": "Fijo: fijado a izquierda/derecha<br>Flotante: arrastrar libremente por la pantalla",
+  "mic_mode_snap": "Fijo",
+  "mic_mode_float": "Flotante",
+
+  "recog_mode_title": "Modo de reconocimiento",
+  "recog_mode_desc": "Parada automática: se detiene tras cada frase. Continuo: se reinicia automáticamente al enviar (manos libres).",
+  "recog_mode_auto_stop": "Parada automática",
+  "recog_mode_continuous": "Continuo",
+
+  "section_history": "Historial",
+  "history_storage_title": "Almacenamiento",
+  "history_storage_desc": "Local: guardado solo en este dispositivo. Servidor(JSON): compartido mediante archivo JSON. Servidor(DB): compartido mediante base de datos.",
+  "history_storage_local": "Local",
+  "history_storage_server_json": "Servidor(JSON)",
+  "history_storage_server_db": "Servidor(DB)",
+  "history_max_title": "Máximo de entradas",
+  "history_max_desc": "Número máximo de entradas guardadas en el almacenamiento local.",
+  "history_max_unit": "entradas",
+  "history_del_confirm_title": "Confirmación al eliminar",
+  "history_del_confirm_desc": "Mostrar un diálogo de confirmación al tocar el botón 🗑.",
+  "history_clear_title": "Borrar historial local",
+  "history_clear_desc": "Eliminar todo el historial guardado en este dispositivo.",
+  "history_clear_btn": "🗑 Borrar historial local",
+  "history_item_resend": "Reenviar",
+  "history_item_delete": "🗑",
+
+  "section_clipboard": "Portapapeles",
+  "clipboard_auto_title": "Obtención automática del portapapeles",
+  "clipboard_auto_desc": "Pega automáticamente el contenido del portapapeles al volver al navegador. Solo Chrome en Android.",
+  "clipboard_enable": "Activar",
+  "clipboard_disable": "Desactivar",
+  "clipboard_ios_unsupported": "No compatible (restricción de iOS)",
+
+  "section_language": "Idioma",
+  "language_title": "Idioma de visualización",
+
+  "section_qr": "Código QR",
+  "qr_desc": "Escanea con tu smartphone para abrir la app.",
+  "qr_btn_android": "📱 Android",
+  "qr_btn_ios": "🍎 iPhone",
+  "qr_close": "Cerrar",
+
+  "section_info": "Información",
+  "info_version": "Versión",
+
+  "confirm_cancel": "Cancelar",
+  "confirm_ok": "Eliminar",
+  "confirm_clear_local": "¿Eliminar todo el historial local?",
+
+  "status_recognizing": "Reconociendo...",
+  "status_recognized": "Listo. Enviando automáticamente...",
+  "status_idle": "Toca el botón del micrófono y habla",
+  "status_clipboard_fetched": "📋 Texto obtenido del portapapeles",
+
+  "result_send_ok": "✅ ¡Copiado al portapapeles! Pulsa Ctrl+V para pegar.",
+  "result_send_offline": "⚠️ Backend sin conexión. Guardado localmente.",
+  "result_clip_error": "❌ Error al obtener el portapapeles del PC: ",
+
+  "error_no_speech_api": "Este navegador no admite Web Speech API. Usa Chrome en Android.",
+  "error_unknown": "Error desconocido",
+  "error_recog_prefix": "Error: ",
+  "error_clipboard_unsupported": "Este navegador no admite la supervisión del portapapeles.",
+  "error_clipboard_permission": "Permiso de portapapeles denegado. Comprueba la configuración del navegador."
+}

@@ -831,6 +831,10 @@ HTML = """<!DOCTYPE html>
             <option value="ko">🇰🇷 한국어</option>
             <option value="zh-Hans">🇨🇳 中文（简体）</option>
             <option value="zh-Hant">🇹🇼 中文（繁體）</option>
+            <option value="es">🇪🇸 Español</option>
+            <option value="fr">🇫🇷 Français</option>
+            <option value="pt">🇧🇷 Português</option>
+            <option value="de">🇩🇪 Deutsch</option>
           </select>
         </div>
       </div>

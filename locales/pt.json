@@ -1,0 +1,90 @@
+{
+  "app_title": "🎤 Entrada de voz→IA",
+  "app_settings_title": "Configurações",
+  "app_settings_btn_title": "Configurações",
+
+  "main_history_title": "📜 Histórico",
+  "main_status_idle": "Toque no botão do microfone e fale",
+  "main_btn_send": "📋 Enviar",
+  "main_btn_clear": "🗑 Limpar",
+  "main_btn_pc_clip": "📥 Obter área de transferência do PC",
+  "main_btn_server_clip": "📥 Obter área de transferência do servidor",
+  "main_transcript_placeholder": "O texto aparecerá aqui",
+  "main_mic_btn_title": "Iniciar/Parar reconhecimento de voz",
+
+  "settings_back": "◀ Voltar",
+  "settings_title": "Configurações",
+
+  "section_input": "Entrada",
+  "suffix_title": "Adicionar ao final do texto",
+  "suffix_desc": "Adicionado ao final ao enviar para a área de transferência",
+  "suffix_none": "Nenhum",
+  "suffix_space": "Espaço",
+  "suffix_newline": "Nova linha",
+
+  "section_mic": "Microfone",
+  "mic_mode_title": "Modo do botão de microfone",
+  "mic_mode_desc": "Fixo: fixado à esquerda/direita<br>Flutuante: arrastar livremente pela tela",
+  "mic_mode_snap": "Fixo",
+  "mic_mode_float": "Flutuante",
+
+  "recog_mode_title": "Modo de reconhecimento",
+  "recog_mode_desc": "Parada automática: para após cada enunciado. Contínuo: reinicia automaticamente ao enviar (mãos livres).",
+  "recog_mode_auto_stop": "Parada automática",
+  "recog_mode_continuous": "Contínuo",
+
+  "section_history": "Histórico",
+  "history_storage_title": "Armazenamento",
+  "history_storage_desc": "Local: salvo apenas neste dispositivo. Servidor(JSON): compartilhado via arquivo JSON. Servidor(DB): compartilhado via banco de dados.",
+  "history_storage_local": "Local",
+  "history_storage_server_json": "Servidor(JSON)",
+  "history_storage_server_db": "Servidor(DB)",
+  "history_max_title": "Máximo de entradas",
+  "history_max_desc": "Número máximo de entradas salvas no armazenamento local.",
+  "history_max_unit": "entradas",
+  "history_del_confirm_title": "Confirmação ao excluir",
+  "history_del_confirm_desc": "Exibir um diálogo de confirmação ao tocar no botão 🗑.",
+  "history_clear_title": "Limpar histórico local",
+  "history_clear_desc": "Excluir todo o histórico salvo neste dispositivo.",
+  "history_clear_btn": "🗑 Limpar histórico local",
+  "history_item_resend": "Reenviar",
+  "history_item_delete": "🗑",
+
+  "section_clipboard": "Área de transferência",
+  "clipboard_auto_title": "Obtenção automática da área de transferência",
+  "clipboard_auto_desc": "Cola automaticamente o conteúdo da área de transferência ao voltar para o navegador. Apenas Chrome no Android.",
+  "clipboard_enable": "Ativar",
+  "clipboard_disable": "Desativar",
+  "clipboard_ios_unsupported": "Não suportado (restrição do iOS)",
+
+  "section_language": "Idioma",
+  "language_title": "Idioma de exibição",
+
+  "section_qr": "Código QR",
+  "qr_desc": "Escaneie com seu smartphone para abrir o app.",
+  "qr_btn_android": "📱 Android",
+  "qr_btn_ios": "🍎 iPhone",
+  "qr_close": "Fechar",
+
+  "section_info": "Informações",
+  "info_version": "Versão",
+
+  "confirm_cancel": "Cancelar",
+  "confirm_ok": "Excluir",
+  "confirm_clear_local": "Excluir todo o histórico local?",
+
+  "status_recognizing": "Reconhecendo...",
+  "status_recognized": "Concluído. Enviando automaticamente...",
+  "status_idle": "Toque no botão do microfone e fale",
+  "status_clipboard_fetched": "📋 Texto obtido da área de transferência",
+
+  "result_send_ok": "✅ Copiado para a área de transferência! Pressione Ctrl+V para colar.",
+  "result_send_offline": "⚠️ Backend offline. Salvo localmente.",
+  "result_clip_error": "❌ Falha ao obter área de transferência do PC: ",
+
+  "error_no_speech_api": "Este navegador não suporta Web Speech API. Use o Chrome no Android.",
+  "error_unknown": "Erro desconhecido",
+  "error_recog_prefix": "Erro: ",
+  "error_clipboard_unsupported": "Este navegador não suporta monitoramento da área de transferência.",
+  "error_clipboard_permission": "Permissão da área de transferência negada. Verifique as configurações do navegador."
+}

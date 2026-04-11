@@ -1,0 +1,90 @@
+{
+  "app_title": "🎤 Spracheingabe→KI",
+  "app_settings_title": "Einstellungen",
+  "app_settings_btn_title": "Einstellungen",
+
+  "main_history_title": "📜 Verlauf",
+  "main_status_idle": "Mikrofon-Taste drücken und sprechen",
+  "main_btn_send": "📋 Senden",
+  "main_btn_clear": "🗑 Löschen",
+  "main_btn_pc_clip": "📥 PC-Zwischenablage abrufen",
+  "main_btn_server_clip": "📥 Server-Zwischenablage abrufen",
+  "main_transcript_placeholder": "Text erscheint hier",
+  "main_mic_btn_title": "Spracherkennung starten/stoppen",
+
+  "settings_back": "◀ Zurück",
+  "settings_title": "Einstellungen",
+
+  "section_input": "Eingabe",
+  "suffix_title": "Am Ende des Textes anhängen",
+  "suffix_desc": "Wird beim Senden in die Zwischenablage angehängt",
+  "suffix_none": "Keiner",
+  "suffix_space": "Leerzeichen",
+  "suffix_newline": "Zeilenumbruch",
+
+  "section_mic": "Mikrofon",
+  "mic_mode_title": "Mikrofon-Schaltflächenmodus",
+  "mic_mode_desc": "Einrasten: links/rechts fixiert<br>Schwebend: frei auf dem Bildschirm verschiebbar",
+  "mic_mode_snap": "Einrasten",
+  "mic_mode_float": "Schwebend",
+
+  "recog_mode_title": "Erkennungsmodus",
+  "recog_mode_desc": "Autostopp: stoppt nach jeder Äußerung. Kontinuierlich: startet nach dem Senden automatisch neu (freihändig).",
+  "recog_mode_auto_stop": "Autostopp",
+  "recog_mode_continuous": "Kontinuierlich",
+
+  "section_history": "Verlauf",
+  "history_storage_title": "Speicher",
+  "history_storage_desc": "Lokal: nur auf diesem Gerät gespeichert. Server(JSON): über JSON-Datei geteilt. Server(DB): über Datenbank geteilt.",
+  "history_storage_local": "Lokal",
+  "history_storage_server_json": "Server(JSON)",
+  "history_storage_server_db": "Server(DB)",
+  "history_max_title": "Max. Einträge",
+  "history_max_desc": "Maximale Anzahl der im lokalen Speicher gespeicherten Einträge.",
+  "history_max_unit": "Einträge",
+  "history_del_confirm_title": "Löschbestätigung",
+  "history_del_confirm_desc": "Bestätigungsdialog beim Tippen auf die Schaltfläche 🗑 anzeigen.",
+  "history_clear_title": "Lokalen Verlauf löschen",
+  "history_clear_desc": "Alle auf diesem Gerät gespeicherten Verläufe löschen.",
+  "history_clear_btn": "🗑 Lokalen Verlauf löschen",
+  "history_item_resend": "Erneut senden",
+  "history_item_delete": "🗑",
+
+  "section_clipboard": "Zwischenablage",
+  "clipboard_auto_title": "Automatisches Abrufen der Zwischenablage",
+  "clipboard_auto_desc": "Fügt den Inhalt der Zwischenablage automatisch ein, wenn der Browser nach dem Kopieren in einer anderen App wieder geöffnet wird. Nur Chrome auf Android.",
+  "clipboard_enable": "Aktivieren",
+  "clipboard_disable": "Deaktivieren",
+  "clipboard_ios_unsupported": "Nicht unterstützt (iOS-Einschränkung)",
+
+  "section_language": "Sprache",
+  "language_title": "Anzeigesprache",
+
+  "section_qr": "QR-Code",
+  "qr_desc": "Mit dem Smartphone scannen, um die App zu öffnen.",
+  "qr_btn_android": "📱 Android",
+  "qr_btn_ios": "🍎 iPhone",
+  "qr_close": "Schließen",
+
+  "section_info": "App-Info",
+  "info_version": "Version",
+
+  "confirm_cancel": "Abbrechen",
+  "confirm_ok": "Löschen",
+  "confirm_clear_local": "Gesamten lokalen Verlauf löschen?",
+
+  "status_recognizing": "Erkennung läuft...",
+  "status_recognized": "Fertig. Wird automatisch gesendet...",
+  "status_idle": "Mikrofon-Taste drücken und sprechen",
+  "status_clipboard_fetched": "📋 Text aus der Zwischenablage abgerufen",
+
+  "result_send_ok": "✅ In die Zwischenablage kopiert! Strg+V zum Einfügen drücken.",
+  "result_send_offline": "⚠️ Backend offline. Lokal gespeichert.",
+  "result_clip_error": "❌ Fehler beim Abrufen der PC-Zwischenablage: ",
+
+  "error_no_speech_api": "Dieser Browser unterstützt die Web Speech API nicht. Bitte Chrome auf Android verwenden.",
+  "error_unknown": "Unbekannter Fehler",
+  "error_recog_prefix": "Fehler: ",
+  "error_clipboard_unsupported": "Dieser Browser unterstützt die Überwachung der Zwischenablage nicht.",
+  "error_clipboard_permission": "Zugriff auf die Zwischenablage verweigert. Bitte Browsereinstellungen prüfen."
+}

@@ -1,0 +1,90 @@
+{
+  "app_title": "🎤 Saisie vocale→IA",
+  "app_settings_title": "Paramètres",
+  "app_settings_btn_title": "Paramètres",
+
+  "main_history_title": "📜 Historique",
+  "main_status_idle": "Appuyez sur le bouton micro et parlez",
+  "main_btn_send": "📋 Envoyer",
+  "main_btn_clear": "🗑 Effacer",
+  "main_btn_pc_clip": "📥 Récupérer le presse-papiers PC",
+  "main_btn_server_clip": "📥 Récupérer le presse-papiers serveur",
+  "main_transcript_placeholder": "Le texte apparaîtra ici",
+  "main_mic_btn_title": "Démarrer/Arrêter la reconnaissance vocale",
+
+  "settings_back": "◀ Retour",
+  "settings_title": "Paramètres",
+
+  "section_input": "Saisie",
+  "suffix_title": "Ajouter à la fin du texte",
+  "suffix_desc": "Ajouté à la fin lors de l'envoi au presse-papiers",
+  "suffix_none": "Aucun",
+  "suffix_space": "Espace",
+  "suffix_newline": "Nouvelle ligne",
+
+  "section_mic": "Microphone",
+  "mic_mode_title": "Mode du bouton micro",
+  "mic_mode_desc": "Ancré: fixé à gauche/droite<br>Flottant: glisser librement sur l'écran",
+  "mic_mode_snap": "Ancré",
+  "mic_mode_float": "Flottant",
+
+  "recog_mode_title": "Mode de reconnaissance",
+  "recog_mode_desc": "Arrêt auto: s'arrête après chaque énoncé. Continu: redémarre automatiquement après envoi (mains libres).",
+  "recog_mode_auto_stop": "Arrêt auto",
+  "recog_mode_continuous": "Continu",
+
+  "section_history": "Historique",
+  "history_storage_title": "Stockage",
+  "history_storage_desc": "Local: enregistré uniquement sur cet appareil. Serveur(JSON): partagé via fichier JSON. Serveur(DB): partagé via base de données.",
+  "history_storage_local": "Local",
+  "history_storage_server_json": "Serveur(JSON)",
+  "history_storage_server_db": "Serveur(DB)",
+  "history_max_title": "Nombre max d'entrées",
+  "history_max_desc": "Nombre maximum d'entrées enregistrées dans le stockage local.",
+  "history_max_unit": "entrées",
+  "history_del_confirm_title": "Confirmation de suppression",
+  "history_del_confirm_desc": "Afficher une boîte de dialogue lors du tap sur le bouton 🗑.",
+  "history_clear_title": "Effacer l'historique local",
+  "history_clear_desc": "Supprimer tout l'historique enregistré sur cet appareil.",
+  "history_clear_btn": "🗑 Effacer l'historique local",
+  "history_item_resend": "Renvoyer",
+  "history_item_delete": "🗑",
+
+  "section_clipboard": "Presse-papiers",
+  "clipboard_auto_title": "Récupération automatique du presse-papiers",
+  "clipboard_auto_desc": "Colle automatiquement le contenu du presse-papiers au retour dans le navigateur. Chrome Android uniquement.",
+  "clipboard_enable": "Activer",
+  "clipboard_disable": "Désactiver",
+  "clipboard_ios_unsupported": "Non pris en charge (restriction iOS)",
+
+  "section_language": "Langue",
+  "language_title": "Langue d'affichage",
+
+  "section_qr": "Code QR",
+  "qr_desc": "Scannez avec votre smartphone pour ouvrir l'application.",
+  "qr_btn_android": "📱 Android",
+  "qr_btn_ios": "🍎 iPhone",
+  "qr_close": "Fermer",
+
+  "section_info": "Informations",
+  "info_version": "Version",
+
+  "confirm_cancel": "Annuler",
+  "confirm_ok": "Supprimer",
+  "confirm_clear_local": "Supprimer tout l'historique local ?",
+
+  "status_recognizing": "Reconnaissance en cours...",
+  "status_recognized": "Terminé. Envoi automatique...",
+  "status_idle": "Appuyez sur le bouton micro et parlez",
+  "status_clipboard_fetched": "📋 Texte récupéré depuis le presse-papiers",
+
+  "result_send_ok": "✅ Copié dans le presse-papiers ! Appuyez sur Ctrl+V pour coller.",
+  "result_send_offline": "⚠️ Backend hors ligne. Enregistré localement.",
+  "result_clip_error": "❌ Échec de la récupération du presse-papiers PC : ",
+
+  "error_no_speech_api": "Ce navigateur ne prend pas en charge Web Speech API. Utilisez Chrome sur Android.",
+  "error_unknown": "Erreur inconnue",
+  "error_recog_prefix": "Erreur : ",
+  "error_clipboard_unsupported": "Ce navigateur ne prend pas en charge la surveillance du presse-papiers.",
+  "error_clipboard_permission": "Permission du presse-papiers refusée. Vérifiez les paramètres du navigateur."
+}
