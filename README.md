@@ -76,6 +76,10 @@ On startup, the PC's local IP address is logged to `server.log`:
 
 Open the following URL in your smartphone browser.
 
+> **First-time access requires initial setup for each device.**
+> - Android: See [Initial Setup: Android](#initial-setup-android)
+> - iPhone: See [Initial Setup: iPhone](#initial-setup-iphone)
+
 | Device | URL |
 |---|---|
 | Android | `http://192.168.x.x:5000` |
