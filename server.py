@@ -12,7 +12,7 @@ import socket
 import threading
 import subprocess
 import pyperclip
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 
 try:
     import pymysql
@@ -1788,6 +1788,29 @@ def delete_history():
     return jsonify({'status': 'ok'})
 
 
+@app.route('/qr.png', methods=['GET'])
+def qr_image():
+    qr_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'qr.png')
+    if not os.path.exists(qr_path):
+        return '', 404
+    return send_file(qr_path, mimetype='image/png')
+
+
+def generate_qr(url):
+    """サーバー URL の QR コード PNG を生成して qr.png に保存する。"""
+    try:
+        import qrcode
+        qr = qrcode.QRCode(border=2)
+        qr.add_data(url)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color='black', back_color='white')
+        qr_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'qr.png')
+        img.save(qr_path)
+        return qr_path
+    except Exception:
+        return None
+
+
 def get_local_ip():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -1808,11 +1831,16 @@ if __name__ == '__main__':
     key_file = os.path.join(script_dir, 'key.pem')
     use_https = os.path.exists(cert_file) and os.path.exists(key_file)
 
+    qr_url = f"http://{ip}:{http_port}"
+    qr_path = generate_qr(qr_url)
+
     print("=" * 50)
     print("  音声入力サーバー起動")
     print(f"  Android用 (HTTP) : http://{ip}:{http_port}")
     if use_https:
         print(f"  iPhone用 (HTTPS) : https://{ip}:{https_port}")
+    if qr_path:
+        print(f"  QR コード        : http://{ip}:{http_port}/qr.png")
     print("=" * 50)
     print()
     print("【Android 初回のみ】Chromeのマイク許可設定:")
