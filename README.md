@@ -41,6 +41,10 @@ Voice-recognized text is written to the PC clipboard, so it works with **any app
 - Terminal / Command line
 - Any other app that can access the clipboard
 
+## Requirements
+
+- **Python 3.8 or higher**（[https://www.python.org/downloads/](https://www.python.org/downloads/)）
+
 ## Setup
 
 ```bash

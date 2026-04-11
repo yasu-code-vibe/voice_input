@@ -46,6 +46,10 @@ PCのクリップボード内容をスマホへ取得する機能も備えてい
 - ターミナル / コマンドライン
 - その他クリップボードにアクセスできるすべてのアプリ
 
+## 必要要件
+
+- **Python 3.8 以上**（[https://www.python.org/downloads/](https://www.python.org/downloads/)）
+
 ## セットアップ
 
 ```bash
