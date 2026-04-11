@@ -108,7 +108,7 @@ You can also display the QR code from the "QR Code" section in the settings scre
 2. Open the URL above on your smartphone (Android: Chrome / iPhone: Safari or Chrome)
 3. Tap the 🎤 button and speak
 4. Text is automatically sent to the PC clipboard and added to the history
-5. Click the Claude Code chat field in VS Code and press `Ctrl+V` to paste
+5. Click the text input field in any app and press `Ctrl+V` to paste
 
 ### Mic Button Position
 
@@ -136,7 +136,7 @@ Tap the "📥 Fetch PC Clipboard" button to add PC clipboard content to the hist
 
 ### History
 
-- Up to 1000 entries saved in browser localStorage (per device)
+- Saved in browser localStorage (per device). The maximum number of entries can be changed in Settings (default: 1000, max: 999,999)
 - Displayed oldest-first, newest at bottom; auto-scrolls on each entry
 - Shown with sequence numbers (000–999)
 - Resend and delete supported
@@ -337,6 +337,7 @@ In Official Mode, the following features are restricted:
 - Voice recognition requires an internet connection (uses Google's speech recognition service)
 - Web Speech API works on Android Chrome, iPhone Safari, and desktop Chrome
 - iPhone users should use Safari or Chrome
+- History is stored in browser localStorage; it will be reset if the device or URL changes
 
 ## Limitations
 
@@ -359,6 +360,8 @@ The server runs in an isolated Linux container and has no way to access the host
 | `pyperclip` | ❌ Unavailable | Depends on the above tools |
 
 ### Auto Smartphone Clipboard Fetch
+
+Text copied in another app (e.g., copying a URL in the browser) is automatically fetched when you switch back to voice_input.
 
 | Environment | Works | Reason |
 |---|---|---|
