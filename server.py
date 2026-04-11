@@ -757,7 +757,7 @@ HTML = """<!DOCTYPE html>
         <div style="display:flex; align-items:center; gap:8px; justify-content:flex-end;">
           <input type="number" id="history-max-input" min="1000" max="999999" step="1"
             style="width:120px; padding:6px 10px; border-radius:8px; border:1px solid #45475a; background:#1e1e2e; color:#cdd6f4; font-size:1rem; text-align:right;">
-          <span style="color:#6c7086; font-size:0.85rem;">件</span>
+          <span style="color:#6c7086; font-size:0.85rem;" data-i18n="history_max_unit">件</span>
         </div>
         </div>
         <div style="margin-top: 16px;">

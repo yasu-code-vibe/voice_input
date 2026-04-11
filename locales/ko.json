@@ -41,6 +41,7 @@
   "history_storage_server_db": "서버(DB)",
   "history_max_title": "최대 저장 건수",
   "history_max_desc": "로컬 스토리지에 저장할 히스토리의 최대 건수입니다.",
+  "history_max_unit": "건",
   "history_del_confirm_title": "삭제 확인 다이얼로그",
   "history_del_confirm_desc": "🗑 버튼을 탭했을 때 확인 다이얼로그를 표시합니다.",
   "history_clear_title": "로컬 기록 지우기",

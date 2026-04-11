@@ -41,6 +41,7 @@
   "history_storage_server_db": "服务器(DB)",
   "history_max_title": "最大保存条数",
   "history_max_desc": "保存在本地存储中的历史记录最大条数。",
+  "history_max_unit": "条",
   "history_del_confirm_title": "删除确认对话框",
   "history_del_confirm_desc": "点击🗑按钮时显示确认对话框。",
   "history_clear_title": "清除本地记录",
