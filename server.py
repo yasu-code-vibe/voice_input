@@ -1788,9 +1788,9 @@ def delete_history():
     return jsonify({'status': 'ok'})
 
 
-@app.route('/qr.png', methods=['GET'])
+@app.route('/qr_android.png', methods=['GET'])
 def qr_image():
-    qr_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'qr.png')
+    qr_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'qr_android.png')
     if not os.path.exists(qr_path):
         return '', 404
     return send_file(qr_path, mimetype='image/png')
@@ -1839,14 +1839,14 @@ if __name__ == '__main__':
     key_file = os.path.join(script_dir, 'key.pem')
     use_https = os.path.exists(cert_file) and os.path.exists(key_file)
 
-    generate_qr(f"http://{ip}:{http_port}", 'qr.png')
+    generate_qr(f"http://{ip}:{http_port}", 'qr_android.png')
     if use_https:
         generate_qr(f"https://{ip}:{https_port}", 'qr_ios.png')
 
     print("=" * 50)
     print("  音声入力サーバー起動")
     print(f"  Android用 (HTTP) : http://{ip}:{http_port}")
-    print(f"  QR (Android)     : http://{ip}:{http_port}/qr.png")
+    print(f"  QR (Android)     : http://{ip}:{http_port}/qr_android.png")
     if use_https:
         print(f"  iPhone用 (HTTPS) : https://{ip}:{https_port}")
         print(f"  QR (iPhone)      : http://{ip}:{http_port}/qr_ios.png")
