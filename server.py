@@ -1796,15 +1796,23 @@ def qr_image():
     return send_file(qr_path, mimetype='image/png')
 
 
-def generate_qr(url):
-    """サーバー URL の QR コード PNG を生成して qr.png に保存する。"""
+@app.route('/qr_ios.png', methods=['GET'])
+def qr_image_ios():
+    qr_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'qr_ios.png')
+    if not os.path.exists(qr_path):
+        return '', 404
+    return send_file(qr_path, mimetype='image/png')
+
+
+def generate_qr(url, filename='qr.png'):
+    """指定 URL の QR コード PNG を生成して保存する。"""
     try:
         import qrcode
         qr = qrcode.QRCode(border=2)
         qr.add_data(url)
         qr.make(fit=True)
         img = qr.make_image(fill_color='black', back_color='white')
-        qr_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'qr.png')
+        qr_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
         img.save(qr_path)
         return qr_path
     except Exception:
@@ -1831,16 +1839,17 @@ if __name__ == '__main__':
     key_file = os.path.join(script_dir, 'key.pem')
     use_https = os.path.exists(cert_file) and os.path.exists(key_file)
 
-    qr_url = f"http://{ip}:{http_port}"
-    qr_path = generate_qr(qr_url)
+    generate_qr(f"http://{ip}:{http_port}", 'qr.png')
+    if use_https:
+        generate_qr(f"https://{ip}:{https_port}", 'qr_ios.png')
 
     print("=" * 50)
     print("  音声入力サーバー起動")
     print(f"  Android用 (HTTP) : http://{ip}:{http_port}")
+    print(f"  QR (Android)     : http://{ip}:{http_port}/qr.png")
     if use_https:
         print(f"  iPhone用 (HTTPS) : https://{ip}:{https_port}")
-    if qr_path:
-        print(f"  QR コード        : http://{ip}:{http_port}/qr.png")
+        print(f"  QR (iPhone)      : http://{ip}:{http_port}/qr_ios.png")
     print("=" * 50)
     print()
     print("【Android 初回のみ】Chromeのマイク許可設定:")
