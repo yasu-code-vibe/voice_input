@@ -1911,8 +1911,8 @@ def get_local_ip():
 
 if __name__ == '__main__':
     ip = get_local_ip()
-    http_port = 5000
-    https_port = 5001
+    http_port = int(os.environ.get('HTTP_PORT', '5000'))
+    https_port = int(os.environ.get('HTTPS_PORT', '5001'))
     script_dir = os.path.dirname(os.path.abspath(__file__))
     cert_file = os.path.join(script_dir, 'cert.pem')
     key_file = os.path.join(script_dir, 'key.pem')
